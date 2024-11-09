@@ -1,11 +1,14 @@
 package com.peter.ccgraphics;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.peter.ccgraphics.data.FontLoader;
 import com.peter.ccgraphics.lua.GraphicsAPI;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlock;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlockEntity;
@@ -35,6 +38,8 @@ public class CCGraphics implements ModInitializer {
         ComputerCraftAPI.registerAPIFactory(new GraphicsAPI());
 
         FrambufferPacket.register();
+
+        ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new FontLoader());
 
     }
     

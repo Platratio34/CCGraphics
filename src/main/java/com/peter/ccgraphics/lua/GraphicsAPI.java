@@ -123,4 +123,21 @@ public class GraphicsAPI implements ILuaAPI, ILuaAPIFactory {
         return MethodResult.of(r, g, b, a);
     }
 
+    /**
+     * Get a new text renderer
+     * @param fontName Font name (Currently only supports <code>mono</code>)
+     * @param fontSize Font size (height) (Currently only supports <code>7</code>)
+     * @return A new Font Renderer for rasterize text to frame buffers.
+     * @throws LuaException If the requested font could not be found.
+     */
+    @LuaFunction(value = "getTextRenderer")
+    public final LuaFontRenderer getTextRenderer(String fontName, int fontSize) throws LuaException {
+        try {
+            return new LuaFontRenderer(fontName, fontSize);
+        } catch (Exception e) {
+            throw new LuaException(e.getMessage());
+        }
+        
+    }
+
 }
