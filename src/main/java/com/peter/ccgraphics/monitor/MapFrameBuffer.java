@@ -120,14 +120,14 @@ public class MapFrameBuffer extends FrameBuffer {
 
     @Override
     public float[] getTextureBuffer() {
-        float[] buffer = new float[width * height * 3];
-        for (double i = 0; i < (width * height); i++) {
+        float[] texBuffer = new float[width * height * 3];
+        for (int i = 0; i < (width * height); i++) {
             int pixel = getValueAtIndex(i);
-            buffer[(int)i*3] = ((float) (pixel >> 16 & 0xff) / 255f);
-            buffer[(int)i*3+1] = ((float) (pixel >> 8 & 0xff) / 255f);
-            buffer[(int)i*3+2] = ((float) (pixel & 0xff) / 255f);
+            texBuffer[i*3] = ((float) (pixel >> 16 & 0xff) ) / 255f;
+            texBuffer[i*3+1] = ((float) (pixel >> 8 & 0xff) ) / 255f;
+            texBuffer[i*3+2] = ((float) (pixel & 0xff) ) / 255f;
         }
-        return new float[0];
+        return texBuffer;
     }
 
     @Override

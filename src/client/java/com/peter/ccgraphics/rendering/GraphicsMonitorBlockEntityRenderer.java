@@ -2,7 +2,6 @@ package com.peter.ccgraphics.rendering;
 
 import org.joml.Matrix4f;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.monitor.ClientGraphicsMonitor;
 import com.peter.ccgraphics.monitor.FrameBuffer;
@@ -14,7 +13,6 @@ import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -51,7 +49,6 @@ public class GraphicsMonitorBlockEntityRenderer implements BlockEntityRenderer<G
         long renderFrame = FrameInfo.getRenderFrame();
 
         if (clientMonitor.pollChanged()) {
-            CCGraphics.LOGGER.info("Updating frame");
             if (frameBuffer.getWidth() != texture.width || frameBuffer.getHeight() != texture.height) {
                 texture.resize(frameBuffer.getWidth(), frameBuffer.getHeight());
             }
@@ -98,21 +95,17 @@ public class GraphicsMonitorBlockEntityRenderer implements BlockEntityRenderer<G
 
     private void renderMonitor(Matrix4f matrix, ClientGraphicsMonitor clientMonitor, ScreenTexture texture2, float xMargin,
             float yMargin) {
-                
-        MonitorShader.INSTANCE.bind();
+        
         MonitorShader.MONITOR_LAYER.startDrawing();
 
-        // MonitorShader.INSTANCE.setTexture(texture2);
+        MonitorShader.INSTANCE.setTexture(texture2);
 
         BufferBuilder buffer = Tessellator.getInstance().begin(DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_TEXTURE);
         addVertex(buffer, matrix, -xMargin, -yMargin, 0.0f, 0.0f);
         addVertex(buffer, matrix, -xMargin, texture2.height + yMargin, 0.0f, 1.0f);
         addVertex(buffer, matrix, texture2.width + xMargin, -yMargin, 1.0f, 0.0f);
         addVertex(buffer, matrix, texture2.width + xMargin, texture2.height + yMargin, 1.0f, 1.0f);
-        // MonitorShader.MONITOR_LAYER.draw(buffer.end());
-        BufferRenderer.draw(buffer.end());
-        
-        MonitorShader.MONITOR_LAYER.endDrawing();
+        MonitorShader.MONITOR_LAYER.draw(buffer.end());
     }
 
     private static void addVertex(VertexConsumer builder, Matrix4f matrix, float x, float y, float u, float v) {

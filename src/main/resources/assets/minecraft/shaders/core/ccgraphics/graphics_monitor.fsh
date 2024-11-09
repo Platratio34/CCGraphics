@@ -60,6 +60,6 @@ void main() {
     // fragColor = linear_fog(colour, vertexDistance, FogStart, FogEnd, FogColor);
     vec4 color = texture(Sampler0, texUv) * ColorModulator;
     // color = color * 10.0;
-    color = color + vec4(texUv.xy, 0.0, 1.0);
+    // color = color + vec4(texUv.xy, 0.0, 1.0);
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

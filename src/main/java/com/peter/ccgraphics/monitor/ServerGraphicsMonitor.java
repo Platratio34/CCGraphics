@@ -72,8 +72,7 @@ public class ServerGraphicsMonitor {
         }
         cFrame = frame.copy();
         lastFrameTime = cTime;
-
-        // origin.
+        
         markChanged();
 
         return true;
