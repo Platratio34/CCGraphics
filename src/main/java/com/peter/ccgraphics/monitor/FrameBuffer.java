@@ -327,12 +327,12 @@ public abstract class FrameBuffer {
      * @param yOff    <i>(Optional)</i> Y position on <code>buffer2</code> to start drawing from. Defaults to <code>0</code>
      * @param w       <i>(Optional)</i> Width of <code>buffer2</code> to draw from <code>xOff</code>. Defaults to <code>buffer2.getWidth()</code>
      * @param h       <i>(Optional)</i> Height of <code>buffer2</code> to draw from <code>yOff</code>. Defaults to <code>buffer2.getHeight()</code>
-     * @throws LuaException If the draw area extends outside the frame
+     * @throws LuaException If the draw area extends outside the frame OR the frame was an invalid frame buffer
      */
     @LuaFunction(value = "drawBuffer")
     public final void drawBufferLUA(IArguments arguments) throws LuaException {
         try {
-            FrameBuffer frame = new MapFrameBuffer(arguments.getTable(2));
+            FrameBuffer frame = fromTableLUA(arguments.getTable(2));
             int xOff = convertDouble(arguments.optDouble(3, 0));
             int yOff = convertDouble(arguments.optDouble(4, 0));
             int w = convertDouble(arguments.optDouble(5, frame.width - xOff));
@@ -389,12 +389,12 @@ public abstract class FrameBuffer {
      * @param yOff    <i>(Optional)</i> Y position on <code>buffer2</code> to start drawing from. Defaults to <code>0</code>
      * @param w       <i>(Optional)</i> Width of <code>buffer2</code> to draw from <code>xOff</code>. Defaults to <code>buffer2.getWidth() - xOff</code>
      * @param h       <i>(Optional)</i> Height of <code>buffer2</code> to draw from <code>yOff</code>. Defaults to <code>buffer2.getHeight() - yOff</code>
-     * @throws LuaException If the draw area extends outside the frame
+     * @throws LuaException If the draw area extends outside the frame OR the frame was an invalid frame buffer
      */
     @LuaFunction(value = "drawBufferMasked")
     public final void drawBufferMaskedLUA(IArguments arguments) throws LuaException {
         try {
-            FrameBuffer frame = fromTable(arguments.getTable(2));
+            FrameBuffer frame = fromTableLUA(arguments.getTable(2));
             int xOff = convertDouble(arguments.optDouble(3, 0));
             int yOff = convertDouble(arguments.optDouble(4, 0));
             int w = convertDouble(arguments.optDouble(5, frame.width - xOff));
