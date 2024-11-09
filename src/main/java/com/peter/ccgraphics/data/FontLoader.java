@@ -41,7 +41,7 @@ public class FontLoader implements SimpleSynchronousResourceReloadListener {
                 }
                 
                 try (InputStream stream = fontFile.get().getInputStream()) {
-                    font.loadCharters(stream);
+                    font.loadCharacters(stream);
                 } catch (Exception e) {
                     CCGraphics.LOGGER.error("Error loading font {}: {}", id, e.getMessage());
                     CCGraphics.LOGGER.error("", e);

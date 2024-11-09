@@ -127,11 +127,18 @@ public class LuaFont {
      * @param stream Input stream of glyphs.
      * @throws IOException In an I/O error occurs
      */
-    protected void loadCharters(InputStream stream) throws IOException {
+    protected void loadCharacters(InputStream stream) throws IOException {
         byte[] bytes = stream.readAllBytes();
         for (CharData data : charData.values()) {
             int[] charArr = new int[data.width * charHeight];
+            if (data.loc >= bytes.length)
+                throw new RuntimeException(
+                        "Could not load character `" + data.c + "`. Glyph located outside file.");
             for (int i = 0; i < charArr.length; i++) {
+                if (data.loc + i >= bytes.length)
+                    throw new RuntimeException(
+                            "Could not load character `" + data.c + "`. Glyph extended outside file.");
+                // System.out.println(i + ", " + data.loc+ ", " + bytes.length);
                 charArr[i] = bytes[data.loc + i];
             }
             chars.put(data.c, charArr);
