@@ -1,19 +1,26 @@
 package com.peter.ccgraphics.monitor;
 
 import javax.annotation.Nullable;
+
+import com.peter.ccgraphics.lua.GraphicsTerminal;
+
 import java.util.Map;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.apis.TermMethods;
 
-public class GraphicsMonitorPeripheral implements IPeripheral {
+public class GraphicsMonitorPeripheral extends TermMethods implements IPeripheral {
 
     public final GraphicsMonitorBlockEntity monitor;
 
+    public final GraphicsTerminal terminal;
+
     public GraphicsMonitorPeripheral(GraphicsMonitorBlockEntity monitorEntity) {
         this.monitor = monitorEntity;
+        terminal = new GraphicsTerminal(monitor.getWidth(), monitor.getHeight());
     }
 
     @Override
@@ -64,6 +71,11 @@ public class GraphicsMonitorPeripheral implements IPeripheral {
     @Override
     public void detach(IComputerAccess computer) {
         monitor.removeComputer(computer);
+    }
+
+    @Override
+    public GraphicsTerminal getTerminal() {
+        return terminal;
     }
 
 }

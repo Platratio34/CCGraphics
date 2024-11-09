@@ -3,6 +3,7 @@ package com.peter.ccgraphics.lua;
 import java.util.Map;
 import javax.annotation.Nullable;
 
+import com.peter.ccgraphics.ColorHelper;
 import com.peter.ccgraphics.monitor.ArrayFrameBuffer;
 import com.peter.ccgraphics.monitor.MapFrameBuffer;
 import com.peter.ccgraphics.monitor.FrameBuffer;
@@ -82,7 +83,7 @@ public class GraphicsAPI implements ILuaAPI, ILuaAPIFactory {
             throw new LuaException("`g` must be between 0 - 255 inclusive");
         if (b < 0 || b > 0xff)
             throw new LuaException("`b` must be between 0 - 255 inclusive");
-        return 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+        return ColorHelper.pack(r, g, b);
     }
 
     /**
@@ -105,7 +106,7 @@ public class GraphicsAPI implements ILuaAPI, ILuaAPIFactory {
             throw new LuaException("`b` must be between 0 - 255 inclusive");
         if (a < 0 || a > 0xff)
             throw new LuaException("`a` must be between 0 - 255 inclusive");
-        return ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+        return ColorHelper.pack(r, g, b, a);
     }
 
     /**
