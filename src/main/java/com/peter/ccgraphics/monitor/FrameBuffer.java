@@ -377,6 +377,36 @@ public abstract class FrameBuffer {
             }
         }
     }
+    
+    /**
+     * Draw the provided buffer onto this buffer. Pixels with an Alpha of 0 will not
+     * be drawn onto this buffer.
+     * 
+     * @param x       X position on THIS buffer to start drawing
+     * @param y       Y position on THIS buffer to start drawing
+     * @param buffer2 Buffer to draw
+     * @param xOff    X position on <code>buffer2</code> to start drawing from
+     * @param yOff    Y position on <code>buffer2</code> to start drawing from
+     * @throws ArrayIndexOutOfBoundsException If the draw area extends outside the
+     *                                        frame
+     */
+    public void drawBufferMasked(int x, int y, FrameBuffer buffer2, int xOff, int yOff) {
+        drawBufferMasked(x, y, buffer2, xOff, yOff, buffer2.width - xOff, buffer2.height - yOff);
+    }
+
+    /**
+     * Draw the provided buffer onto this buffer. Pixels with an Alpha of 0 will not
+     * be drawn onto this buffer.
+     * 
+     * @param x       X position on THIS buffer to start drawing
+     * @param y       Y position on THIS buffer to start drawing
+     * @param buffer2 Buffer to draw
+     * @throws ArrayIndexOutOfBoundsException If the draw area extends outside the
+     *                                        frame
+     */
+    public void drawBufferMasked(int x, int y, FrameBuffer buffer2) {
+        drawBufferMasked(x, y, buffer2, 0, 0, buffer2.width, buffer2.height);
+    }
 
     /**
      * Draw the provided buffer onto this buffer. Pixels with an Alpha of 0 will not
@@ -394,12 +424,12 @@ public abstract class FrameBuffer {
     @LuaFunction(value = "drawBufferMasked")
     public final void drawBufferMaskedLUA(IArguments arguments) throws LuaException {
         try {
-            FrameBuffer frame = fromTableLUA(arguments.getTable(2));
+            FrameBuffer buffer2 = fromTableLUA(arguments.getTable(2));
             int xOff = convertDouble(arguments.optDouble(3, 0));
             int yOff = convertDouble(arguments.optDouble(4, 0));
-            int w = convertDouble(arguments.optDouble(5, frame.width - xOff));
-            int h = convertDouble(arguments.optDouble(6, frame.height - yOff));
-            drawBufferMasked(convertDouble(arguments.getDouble(0)), convertDouble(arguments.getDouble(1)), frame, xOff,
+            int w = convertDouble(arguments.optDouble(5, buffer2.width - xOff));
+            int h = convertDouble(arguments.optDouble(6, buffer2.height - yOff));
+            drawBufferMasked(convertDouble(arguments.getDouble(0)), convertDouble(arguments.getDouble(1)), buffer2, xOff,
                     yOff, w, h);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new LuaException(e.getMessage());

@@ -2,8 +2,9 @@ package com.peter.ccgraphics.lua;
 
 import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.ColorHelper;
-import com.peter.ccgraphics.data.FontLoader;
-import com.peter.ccgraphics.data.LuaFont;
+import com.peter.ccgraphics.font.CharacterGlyph;
+import com.peter.ccgraphics.font.FontLoader;
+import com.peter.ccgraphics.font.LuaFont;
 import com.peter.ccgraphics.monitor.ArrayFrameBuffer;
 import com.peter.ccgraphics.monitor.FrameBuffer;
 
@@ -48,19 +49,10 @@ public class GraphicsTerminal extends Terminal {
 
                 
                 if (c != ' ') {
-                    int[] cArr = font.getChar(c);
-                    int cWidth = font.getWidth(c);
-                    for (int x = 0; x < cWidth; x++) {
-                        for (int y = 0; y < font.charHeight; y++) {
-                            if (cArr[x + (y * font.charWidth)] != 0) {
-                                frame.setPixel(sX + x, sY + y, tColor);
-                            }
-                        }
-                        if (cursorVisible && cursorBlink && cursorX == col && cursorY == row) {
-                            frame.setPixel(sX + x, sY + font.charHeight, cursorColor);
-                        }
-                    }
-                } else if (cursorVisible && cursorBlink && cursorX == col && cursorY == row) {
+                    CharacterGlyph glyph = font.getChar(c).setColor(tColor);
+                    frame.drawBufferMasked(sX, sY, glyph, 0, 0, glyph.getWidth(), glyph.getHeight());
+                }
+                if (cursorVisible && cursorBlink && cursorX == col && cursorY == row) {
                     for (int x = 0; x < font.charWidth; x++) {
                         frame.setPixel(sX + x, sY + font.charHeight, cursorColor);
                     }

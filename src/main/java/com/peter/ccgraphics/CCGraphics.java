@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.peter.ccgraphics.data.FontLoader;
+import com.peter.ccgraphics.font.FontLoader;
 import com.peter.ccgraphics.lua.GraphicsAPI;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlock;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlockEntity;

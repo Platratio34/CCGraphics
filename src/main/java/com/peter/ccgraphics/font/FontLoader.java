@@ -1,4 +1,4 @@
-package com.peter.ccgraphics.data;
+package com.peter.ccgraphics.font;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -33,7 +33,7 @@ public class FontLoader implements SimpleSynchronousResourceReloadListener {
                 JsonObject obj = JsonHelper.deserialize(reader);
                 reader.close();
                 LuaFont font = new LuaFont(obj);
-                Identifier charId = Identifier.of(id.getNamespace(), FOLDER_NAME+"/"+font.name + "_" + font.charHeight + ".bin");
+                Identifier charId = Identifier.of(id.getNamespace(), FOLDER_NAME+"/"+ font.characterFile);
                 Optional<Resource> fontFile = manager.getResource(charId);
                 if (!fontFile.isPresent()) {
                     CCGraphics.LOGGER.error("Error loading font {}: Could not find font file {}", id, charId);

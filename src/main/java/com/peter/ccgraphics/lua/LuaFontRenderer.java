@@ -4,8 +4,9 @@ import java.util.Optional;
 
 import org.joml.Vector2i;
 
-import com.peter.ccgraphics.data.FontLoader;
-import com.peter.ccgraphics.data.LuaFont;
+import com.peter.ccgraphics.font.CharacterGlyph;
+import com.peter.ccgraphics.font.FontLoader;
+import com.peter.ccgraphics.font.LuaFont;
 import com.peter.ccgraphics.monitor.ArrayFrameBuffer;
 import com.peter.ccgraphics.monitor.FrameBuffer;
 
@@ -17,6 +18,9 @@ import dan200.computercraft.api.lua.MethodResult;
  * Renderer for {@link LuaFont}. Rasterize text to a FrameBuffer
  */
 public class LuaFontRenderer {
+
+    private static final int CHAR_OFFSET_X = 1;
+    private static final int CHAR_OFFSET_Y = 2;
 
     private final LuaFont font;
 
@@ -49,25 +53,18 @@ public class LuaFontRenderer {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (c == ' ') {
-                xStart += font.charWidth + 1;
+                xStart += font.charWidth + CHAR_OFFSET_X;
             } else if (c == '\t') {
-                xStart += (font.charWidth + 1) * 4;
+                xStart += (font.charWidth + CHAR_OFFSET_X) * 4;
             } else if (c == '\n') {
                 xStart = 0;
-                yStart += font.charHeight + 1;
+                yStart += font.charHeight + CHAR_OFFSET_Y;
             } else if (c == '\r') {
                 // pass
             } else {
-                int cWidth = font.getWidth(c);
-                int[] cArr = font.getChar(c);
-                for (int x = 0; x < cWidth; x++) {
-                    for (int y = 0; y < font.charHeight; y++) {
-                        if (cArr[x + (y * cWidth)] != 0) {
-                            frame.setPixel(xStart + x, yStart + y, color);
-                        }
-                    }
-                }
-                xStart += cWidth + 1;
+                CharacterGlyph glyph = font.getChar(c).setColor(color);
+                frame.drawBufferMasked(xStart, yStart, glyph);
+                xStart += font.getWidth(c) + CHAR_OFFSET_X;
             }
         }
 
@@ -109,20 +106,20 @@ public class LuaFontRenderer {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (c == ' ') {
-                cW += font.charWidth + 1;
+                cW += font.charWidth + CHAR_OFFSET_X;
             } else if (c == '\t') {
-                cW += (font.charWidth + 1) * 4;
+                cW += (font.charWidth + CHAR_OFFSET_X) * 4;
             } else if (c == '\n') {
                 cW -= 1;
                 w = (cW > w) ? cW : w;
-                h += font.charHeight + 1;
+                h += font.charHeight + CHAR_OFFSET_Y;
             } else if (c == '\r') {
                 // pass
             } else {
-                cW += font.getWidth(c) + 1;
+                cW += font.getWidth(c) + CHAR_OFFSET_X;
             }
         }
-        cW -= 1;
+        cW -= CHAR_OFFSET_X;
         w = (cW > w) ? cW : w;
         return new Vector2i(w, h);
     }
