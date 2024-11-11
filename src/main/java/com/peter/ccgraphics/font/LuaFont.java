@@ -121,8 +121,6 @@ public class LuaFont {
             } else {
                 int w = getIntOrDefault(charJson, "width", charWidth);
                 int h = getIntOrDefault(charJson, "height", charHeight);
-                if (h != charHeight)
-                    CCGraphics.LOGGER.info("{} was {} tall", c, h);
                 assertKey(charJson, "x", "in glyph " + i + ", for .png file");
                 int x = charJson.get("x").getAsInt();
                 assertKey(charJson, "y", "in glyph " + i + ", for .png file");
