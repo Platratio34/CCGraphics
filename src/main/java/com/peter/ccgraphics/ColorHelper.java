@@ -26,6 +26,9 @@ public class ColorHelper {
     }
 
     public static int convert(byte[] color) {
-        return 0xff000000 | (color[1] << 16) | (color[2] << 8) | color[3];
+        int r = color[0];
+        int g = color[1];
+        int b = color[2];
+        return pack(r, g, b);
     }
 }

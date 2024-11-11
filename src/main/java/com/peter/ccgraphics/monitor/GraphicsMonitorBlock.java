@@ -15,6 +15,8 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -41,11 +43,12 @@ public class GraphicsMonitorBlock extends HorizontalFacingBlock implements Block
     public static final String NAME = "graphics_monitor";
     public static final Identifier ID = CCGraphics.id(NAME);
 
-    public static final DirectionProperty ORIENTATION = DirectionProperty.of("orientation", new Direction[]{Direction.UP, Direction.DOWN, Direction.NORTH});
-   public static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.of("state", MonitorEdgeState.class);
+    public static final DirectionProperty ORIENTATION = DirectionProperty.of("orientation",
+            new Direction[] { Direction.UP, Direction.DOWN, Direction.NORTH });
+    public static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.of("state", MonitorEdgeState.class);
 
     public static final MapCodec<GraphicsMonitorBlock> CODEC = createCodec(GraphicsMonitorBlock::new);
-    
+
     public static final GraphicsMonitorBlock BLOCK = Registry.register(Registries.BLOCK, ID,
             new GraphicsMonitorBlock(Settings.create().solid()));
     public static final BlockItem ITEM = Registry.register(Registries.ITEM, ID,
@@ -55,7 +58,8 @@ public class GraphicsMonitorBlock extends HorizontalFacingBlock implements Block
         super(settings);
     }
 
-    public static void register() { }
+    public static void register() {
+    }
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
@@ -66,98 +70,112 @@ public class GraphicsMonitorBlock extends HorizontalFacingBlock implements Block
     protected MapCodec<? extends HorizontalFacingBlock> getCodec() {
         return CODEC;
     }
-    
 
-   protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-      builder.add(new Property[]{ORIENTATION, FACING, STATE});
-   }
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(new Property[] { ORIENTATION, FACING, STATE });
+    }
 
-   @Nullable
-   public BlockState getPlacementState(ItemPlacementContext context) {
-      float pitch = context.getPlayer() == null ? 0.0F : context.getPlayer().getPitch();
-      Direction orientation;
-      if (pitch > 66.5F) {
-         orientation = Direction.UP;
-      } else if (pitch < -66.5F) {
-         orientation = Direction.DOWN;
-      } else {
-         orientation = Direction.NORTH;
-      }
+    @Nullable
+    public BlockState getPlacementState(ItemPlacementContext context) {
+        float pitch = context.getPlayer() == null ? 0.0F : context.getPlayer().getPitch();
+        Direction orientation;
+        if (pitch > 66.5F) {
+            orientation = Direction.UP;
+        } else if (pitch < -66.5F) {
+            orientation = Direction.DOWN;
+        } else {
+            orientation = Direction.NORTH;
+        }
 
-      return (BlockState)((BlockState)this.getDefaultState().with(FACING, context.getHorizontalPlayerFacing().getOpposite())).with(ORIENTATION, orientation);
-   }
+        return (BlockState) ((BlockState) this.getDefaultState().with(FACING,
+                context.getHorizontalPlayerFacing().getOpposite())).with(ORIENTATION, orientation);
+    }
 
-   protected final void onStateReplaced(BlockState block, World world, BlockPos pos, BlockState replace, boolean bool) {
-      if (block.getBlock() != replace.getBlock()) {
-         BlockEntity tile = world.getBlockEntity(pos);
-         super.onStateReplaced(block, world, pos, replace, bool);
-         if (tile instanceof GraphicsMonitorBlockEntity) {
-            GraphicsMonitorBlockEntity generic = (GraphicsMonitorBlockEntity)tile;
-            generic.destroy();
-         }
-
-      }
-   }
-
-   protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random rand) {
-      BlockEntity te = world.getBlockEntity(pos);
-      if (te instanceof GraphicsMonitorBlockEntity monitor) {
-         monitor.blockTick();
-      }
-
-   }
-
-   protected final ActionResult onUse(BlockState state, World level, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-      if (!player.isInSneakingPose()) {
-         BlockEntity var7 = level.getBlockEntity(pos);
-         if (var7 instanceof GraphicsMonitorBlockEntity) {
-            GraphicsMonitorBlockEntity monitor = (GraphicsMonitorBlockEntity)var7;
-            if (monitor.getFront() == hit.getSide()) {
-               if (!level.isClient) {
-                  monitor.monitorTouched((float)(hit.getPos().x - (double)hit.getBlockPos().getX()), (float)(hit.getPos().y - (double)hit.getBlockPos().getY()), (float)(hit.getPos().z - (double)hit.getBlockPos().getZ()));
-               }
-
-               return ActionResult.success(level.isClient);
+    protected final void onStateReplaced(BlockState block, World world, BlockPos pos, BlockState replace,
+            boolean bool) {
+        if (block.getBlock() != replace.getBlock()) {
+            BlockEntity tile = world.getBlockEntity(pos);
+            super.onStateReplaced(block, world, pos, replace, bool);
+            if (tile instanceof GraphicsMonitorBlockEntity) {
+                GraphicsMonitorBlockEntity generic = (GraphicsMonitorBlockEntity) tile;
+                generic.destroy();
             }
-         }
-      }
 
-      return ActionResult.PASS;
-   }
+        }
+    }
 
-   public void onPlaced(World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity livingEntity,
-           ItemStack itemStack) {
-       GraphicsMonitorBlockEntity monitor;
-       label20: {
-           super.onPlaced(world, pos, blockState, livingEntity, itemStack);
-           BlockEntity entity = world.getBlockEntity(pos);
-           if (entity instanceof GraphicsMonitorBlockEntity) {
-               monitor = (GraphicsMonitorBlockEntity) entity;
-               if (!world.isClient) {
-                   if (livingEntity == null) {
-                       break label20;
-                   }
+    protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random rand) {
+        BlockEntity te = world.getBlockEntity(pos);
+        if (te instanceof GraphicsMonitorBlockEntity monitor) {
+            monitor.blockTick();
+        }
 
-                   if (livingEntity instanceof ServerPlayerEntity) {
-                       ServerPlayerEntity player = (ServerPlayerEntity) livingEntity;
-                       if (PlatformHelper.get().isFakePlayer(player)) {
-                           break label20;
-                       }
-                   }
+    }
 
-                   monitor.expand();
-               }
-           }
+    protected final ActionResult onUse(BlockState state, World level, BlockPos pos, PlayerEntity player,
+            BlockHitResult hit) {
+        if (!player.isInSneakingPose()) {
+            BlockEntity var7 = level.getBlockEntity(pos);
+            if (var7 instanceof GraphicsMonitorBlockEntity) {
+                GraphicsMonitorBlockEntity monitor = (GraphicsMonitorBlockEntity) var7;
+                if (monitor.getFront() == hit.getSide()) {
+                    if (!level.isClient) {
+                        monitor.monitorTouched((float) (hit.getPos().x - (double) hit.getBlockPos().getX()),
+                                (float) (hit.getPos().y - (double) hit.getBlockPos().getY()),
+                                (float) (hit.getPos().z - (double) hit.getBlockPos().getZ()));
+                    }
 
-           return;
-       }
+                    return ActionResult.success(level.isClient);
+                }
+            }
+        }
 
-       monitor.updateNeighborsDeferred();
-   }
-   
-   @Override
-   protected BlockRenderType getRenderType(BlockState state) {
-       return BlockRenderType.MODEL;
-   }
+        return ActionResult.PASS;
+    }
+
+    public void onPlaced(World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity livingEntity,
+            ItemStack itemStack) {
+        GraphicsMonitorBlockEntity monitor;
+        label20: {
+            super.onPlaced(world, pos, blockState, livingEntity, itemStack);
+            BlockEntity entity = world.getBlockEntity(pos);
+            if (entity instanceof GraphicsMonitorBlockEntity) {
+                monitor = (GraphicsMonitorBlockEntity) entity;
+                if (!world.isClient) {
+                    if (livingEntity == null) {
+                        break label20;
+                    }
+
+                    if (livingEntity instanceof ServerPlayerEntity) {
+                        ServerPlayerEntity player = (ServerPlayerEntity) livingEntity;
+                        if (PlatformHelper.get().isFakePlayer(player)) {
+                            break label20;
+                        }
+                    }
+
+                    monitor.expand();
+                }
+            }
+
+            return;
+        }
+
+        monitor.updateNeighborsDeferred();
+    }
+
+    @Override
+    protected BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state,
+            BlockEntityType<T> type) {
+        if (world.isClient)
+            return null;
+        return (world2, pos, state2, entity) -> {
+            ((GraphicsMonitorBlockEntity) entity).onTick(world2, pos, state2);
+        };
+    }
 
 }

@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.peter.ccgraphics.CCGraphics;
 
 public class LuaFont {
 
@@ -173,6 +174,7 @@ public class LuaFont {
         if (upper)
             c = ("" + c).toUpperCase().charAt(0);
         if (!chars.containsKey(c)) {
+            CCGraphics.LOGGER.warn("Unknown missing glyph for character `{}`", c);
             return chars.get(MISSING_CHAR).clone();
         }
         return chars.get(c).clone();

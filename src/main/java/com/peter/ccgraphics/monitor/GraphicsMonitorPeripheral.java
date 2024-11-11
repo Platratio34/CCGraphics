@@ -2,6 +2,7 @@ package com.peter.ccgraphics.monitor;
 
 import javax.annotation.Nullable;
 
+import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.lua.GraphicsTerminal;
 
 import java.util.Map;
@@ -17,6 +18,10 @@ public class GraphicsMonitorPeripheral extends TermMethods implements IPeriphera
     public final GraphicsMonitorBlockEntity monitor;
 
     public final GraphicsTerminal terminal;
+
+    private boolean isTerm = false;
+    private long lastFrame = 0;
+    private boolean flashCursor = true;
 
     public GraphicsMonitorPeripheral(GraphicsMonitorBlockEntity monitorEntity) {
         this.monitor = monitorEntity;
@@ -78,4 +83,39 @@ public class GraphicsMonitorPeripheral extends TermMethods implements IPeriphera
         return terminal;
     }
 
+    public void resize(int w, int h) {
+        terminal.resize(w, h);
+    }
+
+    @LuaFunction
+    public final void makeTerm() {
+        // CCGraphics.LOGGER.info("Making graphics monitor terminal");
+        isTerm = true;
+    }
+
+    @LuaFunction
+    public final void makeGraphics() {
+        // CCGraphics.LOGGER.info("Making graphics monitor graphics");
+        isTerm = false;
+    }
+    
+    public void onUpdate() {
+        if (!isTerm)
+            return;
+        long cTime = System.currentTimeMillis();
+        long fromLast = cTime - lastFrame;
+        if (fromLast > 500) {
+            try {
+                terminal.checkSize(monitor.getPixelWidth(), monitor.getPixelHeight());
+                monitor.setFrameBuffer(terminal.renderToFrame(flashCursor));
+                // CCGraphics.LOGGER.info("Updating terminal frame");
+                flashCursor = !flashCursor;
+                lastFrame = cTime;
+            } catch (Exception e) {
+                CCGraphics.LOGGER.error("Error in rendering frame of graphics terminal: ", e);
+                isTerm = false;
+                CCGraphics.LOGGER.error("Making monitor non-terminal");
+            }
+        }
+    }
 }

@@ -358,6 +358,8 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
             }
 
             this.serverMonitor.rebuild();
+            if (peripheral != null)
+                peripheral.resize(serverMonitor.getPixelWidth(), serverMonitor.getPixelHeight());
         } else if (this.serverMonitor != null) {
             this.serverMonitor.reset();
         }
@@ -655,6 +657,11 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     
     public IPeripheral getPeripheral(Direction direction) {
         return peripheral();
+    }
+    
+    protected void onTick(World world, BlockPos pos, BlockState state) {
+        if(peripheral != null)
+            peripheral.onUpdate();
     }
 
 }
