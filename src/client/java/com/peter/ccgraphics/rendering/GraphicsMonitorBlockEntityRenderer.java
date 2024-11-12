@@ -28,8 +28,6 @@ import net.minecraft.util.math.RotationAxis;
 public class GraphicsMonitorBlockEntityRenderer implements BlockEntityRenderer<GraphicsMonitorBlockEntity> {
 
     private static final float MARGIN = 0.034375F;
-    private ScreenTexture texture = new ScreenTexture(1,1);
-    private static long lastFrame = -1L;
 
     public GraphicsMonitorBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
         
@@ -47,6 +45,9 @@ public class GraphicsMonitorBlockEntityRenderer implements BlockEntityRenderer<G
         GraphicsMonitorBlockEntity origin = clientMonitor.getOrigin();
         BlockPos monitorPos = monitor.getPos();
         long renderFrame = FrameInfo.getRenderFrame();
+        GraphicsMonitorRenderState renderState = (GraphicsMonitorRenderState) clientMonitor
+                .getRenderState(GraphicsMonitorRenderState::new);
+        ScreenTexture texture = renderState.getOrCreateBuffer(clientMonitor);
 
         if (clientMonitor.pollChanged()) {
             if (frameBuffer.getWidth() != texture.width || frameBuffer.getHeight() != texture.height) {
@@ -55,8 +56,8 @@ public class GraphicsMonitorBlockEntityRenderer implements BlockEntityRenderer<G
             texture.setFrame(frameBuffer);
         }
 
-        if (lastFrame != renderFrame) {
-            lastFrame = renderFrame;
+        if (renderState.lastFrame != renderFrame) {
+            renderState.lastFrame = renderFrame;
             BlockPos originPos = origin.getPos();
             Direction dir = origin.getDirection();
             Direction front = origin.getFront();

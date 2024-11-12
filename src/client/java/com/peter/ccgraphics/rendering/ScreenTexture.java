@@ -36,7 +36,7 @@ public class ScreenTexture implements AutoCloseable {
         if (glId > -1)
             return;
         glId = GlStateManager._genTexture();
-        CCGraphics.LOGGER.info("Making new texture ({},{})", width, height);
+        CCGraphics.LOGGER.debug("Making new texture ({},{})", width, height);
 
         bind();
         GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
@@ -59,7 +59,7 @@ public class ScreenTexture implements AutoCloseable {
     public void resize(int width, int height) {
         this.width = width;
         this.height = height;
-        CCGraphics.LOGGER.info("Resizing texture to {} x {}", width, height);
+        CCGraphics.LOGGER.debug("Resizing texture to {} x {}", width, height);
         dispose();
     }
 

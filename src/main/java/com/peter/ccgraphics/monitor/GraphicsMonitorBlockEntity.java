@@ -28,6 +28,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -134,6 +136,11 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
 
     }
 
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
+
     void blockTick() {
         if (this.needsValidating) {
             this.needsValidating = false;
@@ -204,7 +211,13 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
             return this.clientMonitor;
         } else {
             GraphicsMonitorBlockEntity origin = this.getOrigin();
-            return origin == null ? null : origin.clientMonitor;
+            if (origin != null) {
+                if (origin.clientMonitor == null)
+                    origin.clientMonitor = new ClientGraphicsMonitor(origin);
+                return origin.clientMonitor;
+            }
+            clientMonitor = new ClientGraphicsMonitor(this);
+            return clientMonitor;
         }
     }
 
@@ -335,6 +348,16 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     void resize(int width, int height) {
         if (this.xIndex != 0 || this.yIndex != 0) {
             this.serverMonitor = null;
+        } else {
+            if (this.serverMonitor == null) {
+                this.serverMonitor = new ServerGraphicsMonitor(this);
+            }
+            this.serverMonitor.markResized();
+            this.serverMonitor.rebuild();
+            if (peripheral != null)
+                peripheral.resize(serverMonitor.getPixelWidth(), serverMonitor.getPixelHeight());
+            markDirty();
+            world.updateListeners(pos, getCachedState(), getCachedState(), 0);
         }
 
         this.xIndex = 0;

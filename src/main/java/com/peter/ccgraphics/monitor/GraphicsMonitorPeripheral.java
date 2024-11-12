@@ -91,13 +91,11 @@ public class GraphicsMonitorPeripheral extends TermMethods implements IPeriphera
 
     @LuaFunction
     public final void makeTerm() {
-        // CCGraphics.LOGGER.info("Making graphics monitor terminal");
         isTerm = true;
     }
 
     @LuaFunction
     public final void makeGraphics() {
-        // CCGraphics.LOGGER.info("Making graphics monitor graphics");
         isTerm = false;
     }
     

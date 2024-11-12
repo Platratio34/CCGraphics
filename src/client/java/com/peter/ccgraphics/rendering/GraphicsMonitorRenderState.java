@@ -7,6 +7,9 @@ import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 public class GraphicsMonitorRenderState implements ClientMonitor.RenderState {
 
     private ScreenTexture texture;
+    public long lastFrame = -1l;
+
+    public GraphicsMonitorRenderState() { }
 
     public ScreenTexture getOrCreateBuffer(ClientGraphicsMonitor monitor) {
         if (texture != null) {

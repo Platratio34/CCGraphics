@@ -60,6 +60,10 @@ public class ServerGraphicsMonitor {
         return this.resized.getAndSet(false);
     }
 
+    synchronized void markResized() {
+        resized.set(true);
+    }
+
     boolean pollChanged() {
         return this.changed.getAndSet(false);
     }
