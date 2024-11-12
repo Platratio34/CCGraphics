@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.peter.ccgraphics.CCGraphics;
-import com.peter.ccgraphics.monitor.FrameBuffer;
+import com.peter.ccgraphics.lua.FrameBuffer;
 
 public class ScreenTexture implements AutoCloseable {
 

@@ -1,9 +1,7 @@
-package com.peter.ccgraphics.monitor;
+package com.peter.ccgraphics.lua;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
-
-import com.peter.ccgraphics.lua.LuaTableHelper;
 
 import dan200.computercraft.api.lua.LuaException;
 import io.netty.buffer.ByteBuf;

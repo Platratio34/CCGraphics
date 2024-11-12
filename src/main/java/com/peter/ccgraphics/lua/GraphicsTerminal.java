@@ -5,8 +5,6 @@ import com.peter.ccgraphics.ColorHelper;
 import com.peter.ccgraphics.font.CharacterGlyph;
 import com.peter.ccgraphics.font.FontLoader;
 import com.peter.ccgraphics.font.LuaFont;
-import com.peter.ccgraphics.monitor.ArrayFrameBuffer;
-import com.peter.ccgraphics.monitor.FrameBuffer;
 
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.terminal.Terminal;

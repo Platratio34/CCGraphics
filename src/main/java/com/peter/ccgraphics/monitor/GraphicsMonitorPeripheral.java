@@ -3,6 +3,8 @@ package com.peter.ccgraphics.monitor;
 import javax.annotation.Nullable;
 
 import com.peter.ccgraphics.CCGraphics;
+import com.peter.ccgraphics.lua.ArrayFrameBuffer;
+import com.peter.ccgraphics.lua.FrameBuffer;
 import com.peter.ccgraphics.lua.GraphicsTerminal;
 
 import java.util.Map;

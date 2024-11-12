@@ -3,11 +3,7 @@ package com.peter.ccgraphics.lua;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.ColorHelper;
-import com.peter.ccgraphics.monitor.ArrayFrameBuffer;
-import com.peter.ccgraphics.monitor.MapFrameBuffer;
-import com.peter.ccgraphics.monitor.FrameBuffer;
 
 import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPI;
@@ -140,17 +136,6 @@ public class GraphicsAPI implements ILuaAPI, ILuaAPIFactory {
             throw new LuaException(e.getMessage());
         }
 
-    }
-    
-    @LuaFunction
-    public final LuaObjectTest test() {
-        return new LuaObjectTest();
-    }
-
-    @LuaFunction
-    public final void test2(Object obj) {
-        CCGraphics.LOGGER.info("{}", obj.getClass().getSimpleName());
-        
     }
 
 }

@@ -1,9 +1,7 @@
-package com.peter.ccgraphics.monitor;
+package com.peter.ccgraphics.lua;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
-
-import com.peter.ccgraphics.lua.CustomLuaObject;
 
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;

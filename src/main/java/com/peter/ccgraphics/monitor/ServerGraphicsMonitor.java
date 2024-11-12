@@ -2,6 +2,8 @@ package com.peter.ccgraphics.monitor;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.peter.ccgraphics.lua.ArrayFrameBuffer;
+import com.peter.ccgraphics.lua.FrameBuffer;
 import com.peter.ccgraphics.networking.FrambufferPacket;
 
 import dan200.computercraft.shared.util.TickScheduler;
@@ -26,7 +28,7 @@ public class ServerGraphicsMonitor {
     }
 
     synchronized void rebuild() {
-        if (getPixelHeight() != cFrame.height || getPixelWidth() != cFrame.width) {
+        if (getPixelHeight() != cFrame.getHeight() || getPixelWidth() != cFrame.getWidth()) {
             cFrame = new ArrayFrameBuffer(getPixelWidth(), getPixelHeight());
             markChanged();
         }
@@ -67,7 +69,7 @@ public class ServerGraphicsMonitor {
         if (cTime - lastFrameTime < MIN_FRAME_TIME) {
             return false;
         }
-        if (cFrame.width != frame.width || cFrame.height != frame.height) {
+        if (cFrame.getWidth() != frame.getWidth() || cFrame.getHeight() != frame.getHeight()) {
             throw new IllegalArgumentException("Frame buffer must be same size as monitor");
         }
         cFrame = frame.copy();

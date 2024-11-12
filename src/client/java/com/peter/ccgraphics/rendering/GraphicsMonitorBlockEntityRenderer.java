@@ -3,8 +3,8 @@ package com.peter.ccgraphics.rendering;
 import org.joml.Matrix4f;
 
 import com.peter.ccgraphics.CCGraphics;
+import com.peter.ccgraphics.lua.FrameBuffer;
 import com.peter.ccgraphics.monitor.ClientGraphicsMonitor;
-import com.peter.ccgraphics.monitor.FrameBuffer;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlockEntity;
 import com.peter.ccgraphics.rendering.shaders.MonitorShader;
 

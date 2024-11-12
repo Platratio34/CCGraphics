@@ -1,7 +1,7 @@
 package com.peter.ccgraphics.networking;
 
 import com.peter.ccgraphics.CCGraphics;
-import com.peter.ccgraphics.monitor.FrameBuffer;
+import com.peter.ccgraphics.lua.FrameBuffer;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlockEntity;
 
 import io.netty.buffer.ByteBuf;

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.peter.ccgraphics.font.LuaFont.CharData;
-import com.peter.ccgraphics.monitor.FrameBuffer;
+import com.peter.ccgraphics.lua.FrameBuffer;
 
 import dan200.computercraft.api.lua.LuaFunction;
 import io.netty.buffer.ByteBuf;

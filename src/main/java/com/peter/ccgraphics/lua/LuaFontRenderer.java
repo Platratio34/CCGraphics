@@ -7,8 +7,6 @@ import org.joml.Vector2i;
 import com.peter.ccgraphics.font.CharacterGlyph;
 import com.peter.ccgraphics.font.FontLoader;
 import com.peter.ccgraphics.font.LuaFont;
-import com.peter.ccgraphics.monitor.ArrayFrameBuffer;
-import com.peter.ccgraphics.monitor.FrameBuffer;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
