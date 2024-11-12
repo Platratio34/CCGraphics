@@ -3,7 +3,8 @@
 	"package": "com.peter.ccgraphics.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"CobaltLuaMachineMixin",
+        "LuaValueMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

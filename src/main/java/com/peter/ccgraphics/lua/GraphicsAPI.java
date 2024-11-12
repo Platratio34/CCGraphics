@@ -3,6 +3,7 @@ package com.peter.ccgraphics.lua;
 import java.util.Map;
 import javax.annotation.Nullable;
 
+import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.ColorHelper;
 import com.peter.ccgraphics.monitor.ArrayFrameBuffer;
 import com.peter.ccgraphics.monitor.MapFrameBuffer;
@@ -138,6 +139,17 @@ public class GraphicsAPI implements ILuaAPI, ILuaAPIFactory {
         } catch (Exception e) {
             throw new LuaException(e.getMessage());
         }
+
+    }
+    
+    @LuaFunction
+    public final LuaObjectTest test() {
+        return new LuaObjectTest();
+    }
+
+    @LuaFunction
+    public final void test2(Object obj) {
+        CCGraphics.LOGGER.info("{}", obj.getClass().getSimpleName());
         
     }
 

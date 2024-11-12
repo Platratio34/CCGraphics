@@ -62,7 +62,7 @@ public class LuaFontRenderer {
             } else if (c == '\r') {
                 // pass
             } else {
-                CharacterGlyph glyph = font.getChar(c).setColor(color);
+                CharacterGlyph glyph = font.getChar(c).colored(color);
                 frame.drawBufferMasked(xStart, yStart, glyph);
                 xStart += font.getWidth(c) + CHAR_OFFSET_X;
             }
@@ -101,7 +101,8 @@ public class LuaFontRenderer {
      */
     public Vector2i getTextSize(String text) {
         int w = 0;
-        int h = font.charHeight;
+        int h = 0;
+        int cLineHeight = font.charHeight;
         int cW = 0;
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
@@ -112,15 +113,19 @@ public class LuaFontRenderer {
             } else if (c == '\n') {
                 cW -= 1;
                 w = (cW > w) ? cW : w;
-                h += font.charHeight + CHAR_OFFSET_Y;
+                h += cLineHeight + CHAR_OFFSET_Y;
+                cLineHeight = font.charHeight;
             } else if (c == '\r') {
                 // pass
             } else {
                 cW += font.getWidth(c) + CHAR_OFFSET_X;
+                int cH = font.getChar(c).getHeight();
+                cLineHeight = cH > cLineHeight ? cH : cLineHeight;
             }
         }
         cW -= CHAR_OFFSET_X;
         w = (cW > w) ? cW : w;
+        h += cLineHeight;
         return new Vector2i(w, h);
     }
     

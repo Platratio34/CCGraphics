@@ -15,20 +15,22 @@ public class CharacterGlyph extends FrameBuffer {
     private final CharData data;
 
     private final byte[] glyph;
-    protected int color = 0xffffffff;
+    protected final int color;
 
     protected CharacterGlyph(LuaFont font, CharData data) {
         super(data.width, data.height);
         this.font = font;
         this.data = data;
         glyph = new byte[Math.ceilDiv(width * height, 8)];
+        this.color = 0xffffffff;
     }
-    
-    private CharacterGlyph(byte[] glyph, LuaFont font, CharData data) {
+
+    private CharacterGlyph(byte[] glyph, LuaFont font, CharData data, int color) {
         super(data.width, data.height);
         this.font = font;
         this.data = data;
         this.glyph = glyph;
+        this.color = color;
     }
 
     @Override
@@ -42,7 +44,7 @@ public class CharacterGlyph extends FrameBuffer {
                     "Pixel must be between (0,0) and (width-1, height-1) inclusive, was (" + x + "," + y + ")");
         int pI = x + (y * width);
         int bI = pI / 8;
-        glyph[bI] |= (byte)(0b1 << (pI % 8));
+        glyph[bI] |= (byte) (0b1 << (pI % 8));
     }
 
     @Override
@@ -56,13 +58,13 @@ public class CharacterGlyph extends FrameBuffer {
     private boolean isFilled(int x, int y) {
         int pI = x + (y * width);
         int bI = pI / 8;
-        byte mask = (byte)(0b1 << (pI % 8));
+        byte mask = (byte) (0b1 << (pI % 8));
         return (glyph[bI] & mask) != 0;
     }
 
     @Override
     public CharacterGlyph copy() {
-        return new CharacterGlyph(glyph, font, data);
+        return new CharacterGlyph(glyph, font, data, color);
     }
 
     @Override
@@ -94,9 +96,8 @@ public class CharacterGlyph extends FrameBuffer {
     }
 
     @LuaFunction
-    public final CharacterGlyph setColor(int color) {
-        this.color = 0xff000000 | color;
-        return this;
+    public final CharacterGlyph colored(int color) {
+        return new CharacterGlyph(glyph, font, data, color);
     }
 
 }

@@ -49,7 +49,7 @@ public class GraphicsTerminal extends Terminal {
 
                 
                 if (c != ' ') {
-                    CharacterGlyph glyph = font.getChar(c).setColor(tColor);
+                    CharacterGlyph glyph = font.getChar(c).colored(tColor);
                     frame.drawBufferMasked(sX, sY, glyph, 0, 0, glyph.getWidth(), glyph.getHeight());
                 }
                 if (cursorVisible && cursorBlink && cursorX == col && cursorY == row) {

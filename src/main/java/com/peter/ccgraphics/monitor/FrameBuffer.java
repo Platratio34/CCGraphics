@@ -3,6 +3,8 @@ package com.peter.ccgraphics.monitor;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.peter.ccgraphics.lua.CustomLuaObject;
+
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -18,7 +20,13 @@ import net.minecraft.network.codec.PacketCodec;
  *  <li> {@link MapFrameBuffer} - Map backed Frame Buffer. Better for converting from LUA tables. </li>
  * </ul>
  */
-public abstract class FrameBuffer {
+public abstract class FrameBuffer extends CustomLuaObject {
+
+    protected static final String LUA_TYPE_NAME = "frame_buffer_java";
+
+    public String getLuaTypeName() {
+        return LUA_TYPE_NAME;
+    }
 
     /**
      * Packet codec for encoding & decoding for networking
@@ -332,12 +340,18 @@ public abstract class FrameBuffer {
     @LuaFunction(value = "drawBuffer")
     public final void drawBufferLUA(IArguments arguments) throws LuaException {
         try {
-            FrameBuffer frame = fromTableLUA(arguments.getTable(2));
+            Object arg2 = arguments.get(2);
+            FrameBuffer buffer2;
+            if (arg2 instanceof FrameBuffer) {
+                buffer2 = (FrameBuffer) arg2;
+            } else {
+                buffer2 = fromTableLUA(arguments.getTable(2));
+            }
             int xOff = convertDouble(arguments.optDouble(3, 0));
             int yOff = convertDouble(arguments.optDouble(4, 0));
-            int w = convertDouble(arguments.optDouble(5, frame.width - xOff));
-            int h = convertDouble(arguments.optDouble(6, frame.height - yOff));
-            drawBuffer(convertDouble(arguments.getDouble(0)), convertDouble(arguments.getDouble(1)), frame, xOff, yOff,
+            int w = convertDouble(arguments.optDouble(5, buffer2.width - xOff));
+            int h = convertDouble(arguments.optDouble(6, buffer2.height - yOff));
+            drawBuffer(convertDouble(arguments.getDouble(0)), convertDouble(arguments.getDouble(1)), buffer2, xOff, yOff,
                     w, h);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new LuaException(e.getMessage());
@@ -424,7 +438,13 @@ public abstract class FrameBuffer {
     @LuaFunction(value = "drawBufferMasked")
     public final void drawBufferMaskedLUA(IArguments arguments) throws LuaException {
         try {
-            FrameBuffer buffer2 = fromTableLUA(arguments.getTable(2));
+            Object arg2 = arguments.get(2);
+            FrameBuffer buffer2;
+            if (arg2 instanceof FrameBuffer) {
+                buffer2 = (FrameBuffer) arg2;
+            } else {
+                buffer2 = fromTableLUA(arguments.getTable(2));
+            }
             int xOff = convertDouble(arguments.optDouble(3, 0));
             int yOff = convertDouble(arguments.optDouble(4, 0));
             int w = convertDouble(arguments.optDouble(5, buffer2.width - xOff));

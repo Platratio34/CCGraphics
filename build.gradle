@@ -34,6 +34,8 @@ loom {
 		}
 	}
 
+    accessWidenerPath = file("src/main/resources/ccgraphics.accesswidener")
+
 }
 
 dependencies {
@@ -47,6 +49,8 @@ dependencies {
 
     modImplementation("cc.tweaked:cc-tweaked-${project.minecraft_version}-fabric-api:${project.cctVersion}")
     modImplementation("cc.tweaked:cc-tweaked-${project.minecraft_version}-fabric:${project.cctVersion}")
+
+    implementation("cc.tweaked:cobalt:0.9.4")
 }
 
 processResources {

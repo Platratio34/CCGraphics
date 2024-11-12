@@ -11,11 +11,11 @@ import java.awt.image.BufferedImage;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.peter.ccgraphics.CCGraphics;
 
 public class LuaFont {
 
-    private static final char MISSING_CHAR = '\u0000';
+    /** Character for missing character or glyph */
+    public static final char MISSING_CHAR = '\u0000';
 
     /** Name of the font */
     public final String name;
@@ -27,7 +27,7 @@ public class LuaFont {
     /** Height of a character */
     public final int charHeight;
 
-    /** Map of characters glyphs. Glyph data is stored by row */
+    /** Map of characters glyphs */
     private HashMap<Character, CharacterGlyph> chars = new HashMap<Character, CharacterGlyph>();
 
     /** Map of character data */
@@ -38,6 +38,9 @@ public class LuaFont {
 
     /** Name of character file */
     protected final String characterFile;
+
+    /** Font version. Mostly for loading */
+    @SuppressWarnings("unused")
     private final int version;
 
     /*
@@ -232,19 +235,22 @@ public class LuaFont {
         return chars.get(c).copy();
     }
 
-    
-    // protected record CharData(char c, int width, int loc) {
-    // }
     /**
      * Character Data struct.
      */
     protected class CharData {
 
+        /** UTF-16 character */
         public final char c;
+        /** Width of the character in pixels */
         public final int width;
+        /** Height of the character in pixels */
         public final int height;
+        /** Byte location of the character in a bin font file */
         public final int loc;
+        /** X position of the character in an image font file */
         protected final int x;
+        /** Y position of the character in an image font file */
         protected final int y;
 
         public CharData(char c, int width, int height, int loc) {
