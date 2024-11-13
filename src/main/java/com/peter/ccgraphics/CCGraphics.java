@@ -35,7 +35,7 @@ public class CCGraphics implements ModInitializer {
         GraphicsMonitorBlock.register();
         GraphicsMonitorBlockEntity.register();
 
-        ComputerCraftAPI.registerAPIFactory(new GraphicsAPI());
+        ComputerCraftAPI.registerAPIFactory(GraphicsAPI::create);
 
         FrambufferPacket.register();
 

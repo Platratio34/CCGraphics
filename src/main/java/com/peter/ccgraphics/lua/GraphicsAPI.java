@@ -1,13 +1,17 @@
 package com.peter.ccgraphics.lua;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 
 import com.peter.ccgraphics.ColorHelper;
 
 import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
@@ -15,7 +19,14 @@ import dan200.computercraft.api.lua.MethodResult;
 /**
  * LUA API for handling various graphics classes
  */
-public class GraphicsAPI implements ILuaAPI, ILuaAPIFactory {
+public class GraphicsAPI implements ILuaAPI {
+
+
+    private IComputerSystem computer;
+    
+    private GraphicsAPI(IComputerSystem computer) {
+            this.computer = computer;
+    }
 
     @Override
     public String[] getNames() {
@@ -28,10 +39,14 @@ public class GraphicsAPI implements ILuaAPI, ILuaAPIFactory {
         return "graphics";
     }
 
-    @Override
     @Nullable
-    public ILuaAPI create(IComputerSystem computer) {
-        return new GraphicsAPI();
+    public static ILuaAPI create(IComputerSystem computer) {
+        return new GraphicsAPI(computer);
+    }
+
+    @Override
+    public void startup() {
+        // fileSystem = environment.getFileSystem();
     }
 
     /**
@@ -136,6 +151,63 @@ public class GraphicsAPI implements ILuaAPI, ILuaAPIFactory {
             throw new LuaException(e.getMessage());
         }
 
+    }
+
+    /**
+     * Load an image to a frame buffer
+     * @param image Image (as byte array)
+     * @return Frame buffer created from the image
+     * @throws LuaException If the image is invalid
+     */
+    public FrameBuffer loadImage(byte[] arr) throws LuaException {
+        try {
+            
+            InputStream imgStream = new ByteArrayInputStream(arr);
+            BufferedImage img = ImageIO.read(imgStream);
+            if (img == null) {
+                throw new LuaException("Invalid image");
+            }
+            FrameBuffer frame = new ArrayFrameBuffer(img.getWidth(), img.getHeight());
+            for (int x = 0; x < img.getWidth(); x++) {
+                for (int y = 0; y < img.getHeight(); y++) {
+                    frame.setPixel(x, y, img.getRGB(x, y));
+                }
+            }
+            imgStream.close();
+            return frame;
+        } catch (IOException e) {
+            throw new LuaException(e.getMessage());
+        }
+    }
+
+    /**
+     * Load an image to a frame buffer
+     * @param image Image (as byte array)
+     * @return Frame buffer created from the image
+     * @throws LuaException If the image is invalid
+     */
+    @LuaFunction
+    public final FrameBuffer loadImage(Map<?, ?> image) throws LuaException {
+        byte[] buff = new byte[image.size()];
+        for (int i = 0; i < buff.length; i++) {
+            buff[i] = (byte) ((int) (double) (image.get((double) i + 1)) & 0xff);
+        }
+        return loadImage(buff);
+    }
+
+    /**
+     * Load an image to a frame buffer
+     * @param image Image (as byte string)
+     * @return Frame buffer created from the image
+     * @throws LuaException If the image is invalid
+     */
+    @LuaFunction
+    public final FrameBuffer loadImageString(String image) throws LuaException {
+        byte[] arr = new byte[image.length()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = (byte) image.charAt(i);
+        }
+        return loadImage(arr);
     }
 
 }

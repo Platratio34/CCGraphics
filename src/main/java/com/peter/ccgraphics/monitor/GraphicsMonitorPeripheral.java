@@ -52,9 +52,14 @@ public class GraphicsMonitorPeripheral extends TermMethods implements IPeriphera
     }
 
     @LuaFunction(mainThread = true)
-    public final boolean setFrameBuffer(Map<?,?> buffer) throws LuaException {
+    public final boolean setFrameBuffer(Object buffer) throws LuaException {
         try {
-            return monitor.setFrameBuffer(FrameBuffer.fromTable(buffer));
+            FrameBuffer buffer2;
+            if (buffer instanceof FrameBuffer)
+                buffer2 = (FrameBuffer) buffer;
+            else
+                buffer2 = FrameBuffer.fromTable((Map<?,?>)buffer);
+            return monitor.setFrameBuffer(buffer2);
         } catch (IllegalArgumentException e) {
             throw new LuaException(e.getMessage());
         }
@@ -117,5 +122,13 @@ public class GraphicsMonitorPeripheral extends TermMethods implements IPeriphera
                 CCGraphics.LOGGER.error("Making monitor non-terminal");
             }
         }
+    }
+
+    @LuaFunction
+    public final void setTermTextSize(int size) throws LuaException {
+        if (!(size == 7 || size == 9)) {
+            throw new LuaException("Currently only size of 7 or 9 is supported");
+        }
+        terminal.setTextSize(size);
     }
 }
