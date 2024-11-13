@@ -62,7 +62,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
     public abstract void setPixel(int x, int y, int color);
 
     /**
-     * Get the color of a pixel
+     * Set the color of a pixel
      * 
      * @param x X position of the pixel
      * @param y Y position of the pixel
@@ -110,8 +110,8 @@ public abstract class FrameBuffer extends CustomLuaObject {
     /**
      * Draw a box outline
      * 
-     * @param x     X position of the pixel
-     * @param y     Y position of the pixel
+     * @param x     X position of the box
+     * @param y     Y position of the box
      * @param w     Width of the box
      * @param h     Height of the box
      * @param color Color of the outline. ARGB 8b each
@@ -149,8 +149,8 @@ public abstract class FrameBuffer extends CustomLuaObject {
     /**
      * Draw a box outline
      * 
-     * @param x     X position of the pixel
-     * @param y     Y position of the pixel
+     * @param x     X position of the box
+     * @param y     Y position of the box
      * @param w     Width of the box
      * @param h     Height of the box
      * @param color Color of the outline. ARGB 8b each
@@ -168,8 +168,8 @@ public abstract class FrameBuffer extends CustomLuaObject {
     /**
      * Draw a filled box
      * 
-     * @param x     X position of the pixel
-     * @param y     Y position of the pixel
+     * @param x     X position of the box
+     * @param y     Y position of the box
      * @param w     Width of the box
      * @param h     Height of the box
      * @param color Color of the box. ARGB 8b each
@@ -197,8 +197,8 @@ public abstract class FrameBuffer extends CustomLuaObject {
     /**
      * Draw a filled box
      * 
-     * @param x     X position of the pixel
-     * @param y     Y position of the pixel
+     * @param x     X position of the box
+     * @param y     Y position of the box
      * @param w     Width of the box
      * @param h     Height of the box
      * @param color Color of the box. ARGB 8b each
@@ -482,6 +482,16 @@ public abstract class FrameBuffer extends CustomLuaObject {
     public abstract FrameBuffer copy();
 
     /**
+     * Make a copy of the frame using the same backing
+     * 
+     * @return Deep copy of this frame
+     */
+    @LuaFunction("copy")
+    public final FrameBuffer copyLUA() {
+        return copy();
+    }
+
+    /**
      * Check if the given position is inside the frame
      * 
      * @param x X position to check
@@ -490,6 +500,17 @@ public abstract class FrameBuffer extends CustomLuaObject {
      */
     public boolean inFrame(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    /**
+     * Check if the given position is inside the frame
+     * 
+     * @param x X position to check
+     * @param y Y position to check
+     * @return If the position was inside the frame
+     */
+    public final boolean inFrameLUA(double x, double y) {
+        return inFrame(convertDouble(x), convertDouble(y));
     }
 
     /**

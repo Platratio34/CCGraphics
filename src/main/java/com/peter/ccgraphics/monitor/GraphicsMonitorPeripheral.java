@@ -53,6 +53,8 @@ public class GraphicsMonitorPeripheral extends TermMethods implements IPeriphera
 
     @LuaFunction(mainThread = true)
     public final boolean setFrameBuffer(Object buffer) throws LuaException {
+        if (isTerm)
+            return false;
         try {
             FrameBuffer buffer2;
             if (buffer instanceof FrameBuffer)
@@ -126,8 +128,8 @@ public class GraphicsMonitorPeripheral extends TermMethods implements IPeriphera
 
     @LuaFunction
     public final void setTermTextSize(int size) throws LuaException {
-        if (!(size == 7 || size == 9)) {
-            throw new LuaException("Currently only size of 7 or 9 is supported");
+        if (!(size == 7 || size == 9 || size == 11)) {
+            throw new LuaException("Currently only size of 7, 9, or 11 is supported");
         }
         terminal.setTextSize(size);
     }
