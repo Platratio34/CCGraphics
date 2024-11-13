@@ -101,16 +101,14 @@ public class MapFrameBuffer extends FrameBuffer {
 
     @Override
     public void setPixel(int x, int y, int color) {
-        if (!inFrame(x, y))
-            throw new ArrayIndexOutOfBoundsException("Pixel must be between (0,0) and (width-1, height-1) inclusive");
+        assertInFrame(x, y);
         map.put(xyToIndex(x, y), color);
     }
 
 
     @Override
     public int getPixel(int x, int y) {
-        if (!inFrame(x, y))
-            throw new ArrayIndexOutOfBoundsException("Pixel must be between (0,0) and (width-1, height-1) inclusive");
+        assertInFrame(x, y);
         double index = xyToIndex(x, y);
         return getValueAtIndex(index);
     }

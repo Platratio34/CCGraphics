@@ -39,6 +39,11 @@ public class LuaFont {
     /** Name of character file */
     protected final String characterFile;
 
+    /** Spacing between characters horizontally. If font is not monospaced, apples only to whitespace. Typically character width plus 1 */
+    public final int hSpacing;
+    /** Spacing between lines of characters. Typically max character height including descender plus 1 */
+    public final int vSpacing;
+
     /** Font version. Mostly for loading */
     @SuppressWarnings("unused")
     private final int version;
@@ -86,6 +91,9 @@ public class LuaFont {
         assertKey(json, "charHeight");
         charHeight = json.get("charHeight").getAsInt();
 
+        hSpacing = getIntOrDefault(json, "hSpacing", charWidth + 1);
+        vSpacing = getIntOrDefault(json, "vSpacing", charHeight + 2);
+
         assertKey(json, "characterFile");
         characterFile = json.get("characterFile").getAsString();
         boolean isBin = characterFile.endsWith(".bin");
@@ -124,10 +132,16 @@ public class LuaFont {
             } else {
                 int w = getIntOrDefault(charJson, "width", charWidth);
                 int h = getIntOrDefault(charJson, "height", charHeight);
-                assertKey(charJson, "x", "in glyph " + i + ", for .png file");
-                int x = charJson.get("x").getAsInt();
-                assertKey(charJson, "y", "in glyph " + i + ", for .png file");
-                int y = charJson.get("y").getAsInt();
+                int x, y;
+                if (charJson.has("x") && charJson.has("y")) {
+                    x = charJson.get("x").getAsInt();
+                    y = charJson.get("y").getAsInt();
+                } else if (charJson.has("gridX") && charJson.has("gridY")) {
+                    x = charJson.get("gridX").getAsInt() * hSpacing;
+                    y = charJson.get("gridY").getAsInt() * (vSpacing-1);
+                } else {
+                    throw new NoSuchElementException("JSON must contain either keys `x` and `y` or `gridX` and `gridY` in glyph "+i+", for .png file");
+                }
                 
                 charData.put(c, new CharData(c, w, h, x, y));
             }
@@ -191,6 +205,8 @@ public class LuaFont {
                 CharacterGlyph glyph = new CharacterGlyph(this, data);
                 for (int x = 0; x < data.width; x++) {
                     for (int y = 0; y < data.height; y++) {
+                        if(data.x + x >= image.getWidth() || data.y + y >= image.getHeight())
+                            throw new RuntimeException("Could not load character `"+data.c+"` (u"+((int)data.c)+"): Glyph extend outside image");
                         int col = image.getRGB(data.x + x, data.y + y);
                         if (col != 0xff000000)
                             glyph.setPixel(x, y);
@@ -204,7 +220,7 @@ public class LuaFont {
     /**
      * Get the width of the specified character in this font. If font is monospaced, return is <code>charWidth</code>.
      * <br/><br/>
-     * If character was not found it this font, returns with of <code>u0000</code>
+     * If character was not found it this font, returns width of <code>u0000</code>
      * @param c Character to get the width of
      * @return Character width
      */

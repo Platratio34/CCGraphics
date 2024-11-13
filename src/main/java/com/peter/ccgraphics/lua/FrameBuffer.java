@@ -73,9 +73,11 @@ public abstract class FrameBuffer extends CustomLuaObject {
     public final void setPixelLUA(double x, double y, int color) throws LuaException {
         int xI = convertDouble(x);
         int yI = convertDouble(y);
-        if (!inFrame(xI, yI))
-            throw new LuaException("Position must be inside the frame");
-        setPixel(xI, yI, color);
+        try {
+            setPixel(xI, yI, color);
+        } catch (IndexOutOfBoundsException e) {
+            throw new LuaException(e.getMessage());
+        }
     }
 
     /**
@@ -98,9 +100,11 @@ public abstract class FrameBuffer extends CustomLuaObject {
     public final int getPixelLua(double x, double y) throws LuaException {
         int xI = convertDouble(x);
         int yI = convertDouble(y);
-        if (!inFrame(xI, yI))
-            throw new LuaException("Position must be inside the frame");
-        return getPixel(xI, yI);
+        try {
+            return getPixel(xI, yI);
+        } catch(IndexOutOfBoundsException e) {
+            throw new LuaException(e.getMessage());
+        }
     }
 
     /**
@@ -114,8 +118,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
      * @throws ArrayIndexOutOfBoundsException If the box extends outside the frame
      */
     public void drawBox(int x, int y, int w, int h, int color) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
-            throw new ArrayIndexOutOfBoundsException("(x, y) must be between (0, 0) & (width-1, height-1) inclusive, was ("+x+","+y+")");
+        assertInFrame(x, y);
         if (x + w > width || y + h > height)
             throw new ArrayIndexOutOfBoundsException("(w, h) must be between (0, 0) & (width-x, height-y) inclusive, was ("+w+","+h+")");
 
@@ -173,8 +176,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
      * @throws ArrayIndexOutOfBoundsException If the box extends outside the frame
      */
     public void drawBoxFilled(int x, int y, int w, int h, int color) {
-        if (x < 0 || x >= width || y < 0 || y >= height)
-            throw new ArrayIndexOutOfBoundsException("(x, y) must be between (0, 0) & (width-1, height-1) inclusive, was ("+x+","+y+")");
+        assertInFrame(x, y);
         if (x + w > width || y + h > height)
             throw new ArrayIndexOutOfBoundsException("(w, h) must be between (0, 0) & (width-x, height-y) inclusive, was ("+w+","+h+")");
 
@@ -306,8 +308,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
      *                                        frame
      */
     public void drawBuffer(int x, int y, FrameBuffer buffer2, int xOff, int yOff, int w, int h) {
-        if (x < 0 || y < 0 || x >= width || y >= width)
-            throw new ArrayIndexOutOfBoundsException("Point (x, y) must be between (0, 0) and (width-1, height-1)");
+        assertInFrame(x, y);
         if (xOff < 0 || yOff < 0 || xOff >= buffer2.width || yOff >= buffer2.width)
             throw new ArrayIndexOutOfBoundsException(
                     "Point (xOff, yOff) must be between (0, 0) and (buffer2.width-1, buffer2.height-1)");
@@ -371,8 +372,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
      *                                        frame
      */
     public void drawBufferMasked(int x, int y, FrameBuffer buffer2, int xOff, int yOff, int w, int h) {
-        if (x < 0 || y < 0 || x >= width || y >= width)
-            throw new ArrayIndexOutOfBoundsException("Point (x, y) must be between (0, 0) and (width-1, height-1)");
+        assertInFrame(x, y);
         if (xOff < 0 || yOff < 0 || xOff >= buffer2.width || yOff >= buffer2.height)
             throw new ArrayIndexOutOfBoundsException(
                     "Point (xOff, yOff) must be between (0, 0) and (buffer2.width-1, buffer2.height-1)");
@@ -490,6 +490,21 @@ public abstract class FrameBuffer extends CustomLuaObject {
      */
     public boolean inFrame(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    /**
+     * Check if the given position is inside the frame
+     * 
+     * @param x X position to check
+     * @param y Y position to check
+     * @return If the position was inside the frame
+     * @throws ArrayIndexOutOfBoundsException If the point was outside the frame
+     */
+    public void assertInFrame(int x, int y) throws ArrayIndexOutOfBoundsException {
+        if (!inFrame(x, y)) {
+            throw new ArrayIndexOutOfBoundsException(String.format(
+                    "Point must be between (0,0) and (width-1, height-1) inclusive; (0,0) <= (%d,%d) <= (%d,%d)",x,y,width,height));
+        }
     }
 
     /**

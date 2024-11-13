@@ -32,15 +32,13 @@ public class ArrayFrameBuffer extends FrameBuffer {
 
     @Override
     public void setPixel(int x, int y, int color) {
-        if (!inFrame(x, y))
-            throw new ArrayIndexOutOfBoundsException("Pixel must be between (0,0) and (width-1, height-1) inclusive, was ("+x+","+y+")");
+        assertInFrame(x, y);
         buffer[xyToIndex(x, y)] = color;
     }
 
     @Override
     public int getPixel(int x, int y) {
-        if (!inFrame(x, y))
-            throw new ArrayIndexOutOfBoundsException("Pixel must be between (0,0) and (width-1, height-1) inclusive, was ("+x+","+y+")");
+        assertInFrame(x, y);
         return buffer[xyToIndex(x, y)];
     }
 

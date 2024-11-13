@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.joml.Vector2i;
 
+import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.font.CharacterGlyph;
 import com.peter.ccgraphics.font.FontLoader;
 import com.peter.ccgraphics.font.LuaFont;
@@ -16,9 +17,6 @@ import dan200.computercraft.api.lua.MethodResult;
  * Renderer for {@link LuaFont}. Rasterize text to a FrameBuffer
  */
 public class LuaFontRenderer {
-
-    private static final int CHAR_OFFSET_X = 1;
-    private static final int CHAR_OFFSET_Y = 2;
 
     private final LuaFont font;
 
@@ -51,18 +49,21 @@ public class LuaFontRenderer {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (c == ' ') {
-                xStart += font.charWidth + CHAR_OFFSET_X;
+                xStart += font.hSpacing;
             } else if (c == '\t') {
-                xStart += (font.charWidth + CHAR_OFFSET_X) * 4;
+                xStart += (font.hSpacing) * 4;
             } else if (c == '\n') {
                 xStart = 0;
-                yStart += font.charHeight + CHAR_OFFSET_Y;
+                yStart += font.vSpacing;
             } else if (c == '\r') {
                 // pass
             } else {
                 CharacterGlyph glyph = font.getChar(c).colored(color);
                 frame.drawBufferMasked(xStart, yStart, glyph);
-                xStart += font.getWidth(c) + CHAR_OFFSET_X;
+                if (font.isMono)
+                    xStart += font.hSpacing;
+                else
+                    xStart += font.getWidth(c) + 1;
             }
         }
 
@@ -86,44 +87,48 @@ public class LuaFontRenderer {
      */
     @LuaFunction(value = "rasterize")
     public final FrameBuffer rasterizeLUA(String text, Optional<Integer> color) throws LuaException {
-        if (!color.isPresent())
-            return rasterize(text);
-        return rasterize(text, color.get());
+        try {
+            if (!color.isPresent())
+                return rasterize(text);
+            return rasterize(text, color.get());
+        } catch (Exception e) {
+            CCGraphics.LOGGER.error("Exception in rasterizeing text:",e);
+            throw new LuaException("Error rasterizeing text: " + e.getMessage());
+        }
     }
 
     
     /**
      * Get the size of text if it were rasterized
      * @param text Text to calculate size of
-     * @return Width and height of rasterized text
+     * @return Width and height of rasterized text &
      */
     public Vector2i getTextSize(String text) {
         int w = 0;
-        int h = 0;
-        int cLineHeight = font.charHeight;
+        int h = font.vSpacing;
         int cW = 0;
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (c == ' ') {
-                cW += font.charWidth + CHAR_OFFSET_X;
+                cW += font.hSpacing;
             } else if (c == '\t') {
-                cW += (font.charWidth + CHAR_OFFSET_X) * 4;
+                cW += (font.hSpacing) * 4;
             } else if (c == '\n') {
-                cW -= 1;
                 w = (cW > w) ? cW : w;
-                h += cLineHeight + CHAR_OFFSET_Y;
-                cLineHeight = font.charHeight;
+                cW = 0;
+                h += font.vSpacing;
             } else if (c == '\r') {
                 // pass
             } else {
-                cW += font.getWidth(c) + CHAR_OFFSET_X;
-                int cH = font.getChar(c).getHeight();
-                cLineHeight = cH > cLineHeight ? cH : cLineHeight;
+                if (font.isMono)
+                    cW += font.hSpacing;
+                else
+                    cW += font.getWidth(c) + 1;
             }
         }
-        cW -= CHAR_OFFSET_X;
         w = (cW > w) ? cW : w;
-        h += cLineHeight;
+        w -= 1;
+        h -= 1;
         return new Vector2i(w, h);
     }
     

@@ -6,30 +6,52 @@ import com.peter.ccgraphics.font.CharacterGlyph;
 import com.peter.ccgraphics.font.FontLoader;
 import com.peter.ccgraphics.font.LuaFont;
 
-import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 
 public class GraphicsTerminal extends Terminal {
 
-    private static final int CHAR_WIDTH = 6;
-    private static final int CHAR_HEIGHT = 9;
-
     protected int pixelWidth;
     protected int pixelHeight;
 
+    protected int size = 7;
+    protected LuaFont font;
+
+    protected int charWidth;
+    protected int charHeight;
+
     public GraphicsTerminal(int pixelWidth, int pixelHeight) {
-        super((pixelWidth - 2) / CHAR_WIDTH, (pixelHeight - 2) / CHAR_HEIGHT, true);
+        super((pixelWidth - 2) / getCharWidth(7), (pixelHeight - 2) / getCharHeight(7), true);
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
+        getFont();
     }
 
-    @LuaFunction
+    private static LuaFont getFont(int size) {
+        return FontLoader.getFont("mono", size);
+    }
+
+    private static int getCharWidth(int size) {
+        return getFont(size).charWidth + 1;
+    }
+    private static int getCharHeight(int size) {
+        return getFont(size).charHeight + 2;
+    }
+
+    private LuaFont getFont() {
+        if (font == null) {
+            font = FontLoader.getFont("mono", size);
+        }
+        charHeight = font.charHeight + 2;
+        charWidth = font.charWidth + 1;
+        return FontLoader.getFont("mono", size);
+    }
+
     public FrameBuffer renderToFrame(boolean cursorVisible) {
         FrameBuffer frame = new ArrayFrameBuffer(pixelWidth, pixelHeight);
         // frame.drawBoxFilled(0,0,frame.getWidth(),frame.getHeight(), )
 
-        LuaFont font = FontLoader.getFont("mono", 7);
+        LuaFont font = getFont();
 
         int cursorColor = ColorHelper.convert(palette.getRenderColours(cursorColour));
 
@@ -38,17 +60,16 @@ public class GraphicsTerminal extends Terminal {
             TextBuffer tColors = textColour[row];
             TextBuffer line = text[row];
             for (int col = 0; col < width; col++) {
-                int sX = 1 + (col * CHAR_WIDTH);
-                int sY = 1 + (row * CHAR_HEIGHT);
-                frame.drawBoxFilled(sX, sY, CHAR_WIDTH, CHAR_HEIGHT, convertColor(bColors.charAt(col)));
+                int sX = 1 + (col * charWidth);
+                int sY = 1 + (row * charHeight);
+                frame.drawBoxFilled(sX, sY, charWidth, charHeight, convertColor(bColors.charAt(col)));
 
                 int tColor = convertColor(tColors.charAt(col));
                 char c = line.charAt(col);
 
-                
                 if (c != ' ') {
                     CharacterGlyph glyph = font.getChar(c).colored(tColor);
-                    frame.drawBufferMasked(sX, sY, glyph, 0, 0, glyph.getWidth(), glyph.getHeight());
+                    frame.drawBufferMasked(sX, sY, glyph);
                 }
                 if (cursorVisible && cursorBlink && cursorX == col && cursorY == row) {
                     for (int x = 0; x < font.charWidth; x++) {
@@ -59,6 +80,16 @@ public class GraphicsTerminal extends Terminal {
         }
 
         return frame;
+    }
+    
+    public void setTextSize(int size) {
+        if (size == this.size)
+            return;
+        this.size = size;
+        font = FontLoader.getFont("mono", size);
+        charHeight = font.hSpacing;
+        charWidth = font.vSpacing;
+        super.resize((pixelWidth - 2) / charWidth, (pixelHeight - 2) / charHeight);
     }
 
     private int convertColor(char color) {
@@ -109,7 +140,7 @@ public class GraphicsTerminal extends Terminal {
     public synchronized void resize(int width, int height) {
         this.pixelWidth = width;
         this.pixelHeight = height;
-        super.resize((pixelWidth - 2) / CHAR_WIDTH, (pixelHeight - 2) / CHAR_HEIGHT);
+        super.resize((pixelWidth - 2) / charWidth, (pixelHeight - 2) / charHeight);
     }
 
     public void checkSize(int pixelWidth, int pixelHeight) {
