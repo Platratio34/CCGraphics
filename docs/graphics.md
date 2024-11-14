@@ -26,7 +26,7 @@ Graphics API
 Make a new FrameBuffer of the provided size
 
 #### Returns
-- `FrameBuffer` - New frame buffer
+- [`FrameBuffer`](FrameBuffer.md) - New frame buffer
 
 ---
 
@@ -75,7 +75,7 @@ Packs Red, Green, & Blue into an ARGB8 integer for use with FrameBuffers. Sets A
 - If any competent was out of range `0x00` - `0xff`
 
 #### See
-- [`graphics.packRGBA(r,g,b,a)](#packrgbar-integer-g-integer-b-integer-a-integer-integer)
+- [`graphics.packRGBA(r,g,b,a)`](#packrgbar-integer-g-integer-b-integer-a-integer-integer)
 - [`graphics.unpackRGBA(color)`](#unpackrgbacolor-integer-integer-integer-integer)
 
 ---
@@ -97,7 +97,7 @@ Packs Red, Green, Blue, and Alpha into an ARGB8 integer for use with FrameBuffer
 - If any competent was out of range `0x00` - `0xff`
 
 #### See
-- [`graphics.packRGB(r,g,b)](#packrgbr-integer-g-integer-b-integer-integer)
+- [`graphics.packRGB(r,g,b)`](#packrgbr-integer-g-integer-b-integer-integer)
 - [`graphics.unpackRGBA(color)`](#unpackrgbacolor-integer-integer-integer-integer)
 
 ---
