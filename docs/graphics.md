@@ -1,7 +1,7 @@
 # `graphics` API
 
 ```lua
-local graphics = require('graphics')
+local graphics = require('graphics') ---@type GraphicsAPI
 ```
 
 Graphics API

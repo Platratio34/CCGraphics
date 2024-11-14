@@ -2,6 +2,8 @@
 
 `graphics_monitor` implements all terminal methods of a terminal redirect (documentation [here](https://tweaked.cc/module/term.html#ty:Redirect))
 
+## LUA type: `GraphicsMonitorPeripheral`
+
 ## Methods
 
 | Signature | Return | Description |

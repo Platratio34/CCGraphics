@@ -18,7 +18,6 @@ Arbitrary frame buffers can be created with `graphics.FrameBuffer(width, height)
 | `copy()` | `FrameBuffer` | Makes a deep copy of the frame buffer |
 | `inFrame(x,y)` | `bool` | Check if the given position is inside the frame |
 | `getTable()` | `table` | Get a table that represents this frame buffer for passing to LUA |
-| `fromTable(tbl)` | `FrameBuffer` | Make a new frame buffer for the provided table |
 
 ## Detail
 
