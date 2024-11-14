@@ -1,11 +1,11 @@
 # CC:Graphics Documentation
 
 ## Classes
-- `FrameBuffer` - Image frame buffer
-- `FontRenderer` - Text renderer
+- [`FrameBuffer`](FrameBuffer.md) - Image frame buffer
+- [`FontRenderer`](FontRenderer.md) - Text renderer
 
 ## APIs
-- `graphics` - Graphics API
+- [`graphics`](graphics.md) - Graphics API
 
 ## Peripherals
-- `graphics_monitor` - Graphics Monitor Peripheral
+- [`graphics_monitor`](graphics_monitor.md) - Graphics Monitor Peripheral

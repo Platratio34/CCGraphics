@@ -157,7 +157,7 @@ Works with byte array of PNG or JPEG images.
 
 Load an image as a FrameBuffer.
 
-Works with byte array string of PNG or JPEG images, such as from (https://tweaked.cc/module/fs.html#ty:ReadHandle:readAll)[`ReadHandle.readAll()`].
+Works with byte array string of PNG or JPEG images, such as from [`ReadHandle.readAll()`](https://tweaked.cc/module/fs.html#ty:ReadHandle:readAll).
 
 #### Parameters
 - `image: string` - PNG or JPEG as byte array string

@@ -1,6 +1,6 @@
 # `graphics_monitor` Peripheral
 
-`graphics_monitor` implements all terminal methods of a terminal redirect (documentation (https://tweaked.cc/module/term.html#ty:Redirect)[here])
+`graphics_monitor` implements all terminal methods of a terminal redirect (documentation [here](https://tweaked.cc/module/term.html#ty:Redirect))
 
 ## Methods
 
