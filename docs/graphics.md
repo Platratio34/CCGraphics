@@ -128,7 +128,7 @@ Included fonts:
 - `size: integer` - Font height in pixels
 
 #### Returns
-- `TextRenderer` - Text renderer for the font
+- `FontRenderer` - Text renderer for the font
 
 #### Throws
 - If the requested font doesn't exist
