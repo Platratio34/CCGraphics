@@ -35,7 +35,7 @@ Set the color of a pixel.
 - If the location is outside the frame buffer
 
 #### See also
-- `graphics.packRGB(r,g,b)` and `graphics.packRGBA(r,g,b,a)`
+- [`graphics.packRGB(r,g,b)`](graphics.md#packrgbr-integer-g-integer-b-integer-integer) and [`graphics.packRGBA(r,g,b,a)`](graphics.md#packrgbar-integer-g-integer-b-integer-a-integer-integer)
 
 ---
 
@@ -54,7 +54,7 @@ Get the color of a pixel.
 - If the location is outside the frame buffer
 
 #### See also
-- `graphics.unpackRGB(color)`
+- [`graphics.unpackRGB(color)`](graphics.md#unpackrgbacolor-integer-integer-integer-integer)
 
 ---
 
@@ -73,7 +73,7 @@ Draw a box outline.
 - If the box extends outside the frame buffer
 
 #### See also
-- `graphics.packRGB(r,g,b)` and `graphics.packRGBA(r,g,b,a)`
+- [`graphics.packRGB(r,g,b)`](graphics.md#packrgbr-integer-g-integer-b-integer-integer) and [`graphics.packRGBA(r,g,b,a)`](graphics.md#packrgbar-integer-g-integer-b-integer-a-integer-integer)
 
 ---
 
@@ -92,7 +92,7 @@ Draw a filled box.
 - If the box extends outside the frame buffer
 
 #### See also
-- `graphics.packRGB(r,g,b)` and `graphics.packRGBA(r,g,b,a)`
+- [`graphics.packRGB(r,g,b)`](graphics.md#packrgbr-integer-g-integer-b-integer-integer) and [`graphics.packRGBA(r,g,b,a)`](graphics.md#packrgbar-integer-g-integer-b-integer-a-integer-integer)
 
 ---
 
@@ -111,7 +111,7 @@ Draw a line between 2 points.
 - If the line extends outside the frame buffer
 
 #### See also
-- `graphics.packRGB(r,g,b)` and `graphics.packRGBA(r,g,b,a)`
+- [`graphics.packRGB(r,g,b)`](graphics.md#packrgbr-integer-g-integer-b-integer-integer) and [`graphics.packRGBA(r,g,b,a)`](graphics.md#packrgbar-integer-g-integer-b-integer-a-integer-integer)
 
 ---
 
@@ -132,7 +132,7 @@ Draw another buffer onto this buffer.
 - If the drawn area extends outside of either frame buffer
 
 #### See also
-- `FrameBuffer.toTable()` and `graphics.tableToFrameBuffer(tbl)`
+- [`FrameBuffer.getTable()`](#gettable-table) and [`graphics.tableToFrameBuffer(tbl)`](graphics.md#tabletoframebuffertbl-table-framebuffer)
 
 ---
 
@@ -153,7 +153,7 @@ Draw another buffer onto this buffer masking by alpha. Any pixel with an alpha o
 - If the drawn area extends outside of either frame buffer, or the provided buffer could not be turned into a FrameBuffer
 
 #### See also
-- `FrameBuffer.toTable()` and `FrameBuffer.fromTable()`
+- [`FrameBuffer.getTable()`](#gettable-table) and [`graphics.tableToFrameBuffer(tbl)`](graphics.md#tabletoframebuffertbl-table-framebuffer)
 
 ---
 
@@ -181,6 +181,27 @@ Get a deep copy of this frame buffer
 
 #### Returns
 - `FrameBuffer` - Deep copy of this frame
+
+---
+
+### `getTable(): table`
+
+Get a table representation of the frame buffer
+
+Example table:
+```lua
+{
+    width = 2,
+    height = 2,
+    [0] = 0xffffffff,
+    [1] = 0xffffffff,
+    [2] = 0xffffffff,
+    [3] = 0xffffffff,
+}
+```
+
+#### Returns
+- `table` - Table copy of the frame buffer
 
 ---
 

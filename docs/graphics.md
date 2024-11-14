@@ -54,6 +54,9 @@ Example table:
 #### Returns
 - `FrameBuffer` - Frame buffer from table
 
+#### See Also
+- [`FrameBuffer.getTable()`](FrameBuffer.md#gettable-table)
+
 ---
 
 ### `packRGB(r: integer, g: integer, b: integer): integer`
@@ -72,7 +75,8 @@ Packs Red, Green, & Blue into an ARGB8 integer for use with FrameBuffers. Sets A
 - If any competent was out of range `0x00` - `0xff`
 
 #### See
-- `graphics.unpackRGBA(color)`
+- [`graphics.packRGBA(r,g,b,a)](#packrgbar-integer-g-integer-b-integer-a-integer-integer)
+- [`graphics.unpackRGBA(color)`](#unpackrgbacolor-integer-integer-integer-integer)
 
 ---
 
@@ -93,11 +97,12 @@ Packs Red, Green, Blue, and Alpha into an ARGB8 integer for use with FrameBuffer
 - If any competent was out of range `0x00` - `0xff`
 
 #### See
-- `graphics.unpackRGBA(color)`
+- [`graphics.packRGB(r,g,b)](#packrgbr-integer-g-integer-b-integer-integer)
+- [`graphics.unpackRGBA(color)`](#unpackrgbacolor-integer-integer-integer-integer)
 
 ---
 
-### `packRGBA(color: integer): integer, integer, integer`
+### `unpackRGBA(color: integer): integer, integer, integer`
 
 Unpacks Red, Green, Blue, and Alpha from an ARGB8 integer.
 
@@ -111,7 +116,7 @@ Unpacks Red, Green, Blue, and Alpha from an ARGB8 integer.
 - `integer` - Alpha component ( 0 - 255 )
 
 #### See
-- `graphics.packRGB(r,g,b)` and `graphics.packRGBA(r,g,b)`
+- [`graphics.packRGB(r,g,b)`](#packrgbr-integer-g-integer-b-integer-integer) and [`graphics.packRGBA(r,g,b)`](#packrgbar-integer-g-integer-b-integer-a-integer-integer)
 
 ---
 
@@ -128,7 +133,7 @@ Included fonts:
 - `size: integer` - Font height in pixels
 
 #### Returns
-- `FontRenderer` - Text renderer for the font
+- [`FontRenderer`](FontRenderer.md) - Text renderer for the font
 
 #### Throws
 - If the requested font doesn't exist
@@ -143,10 +148,9 @@ Works with byte array of PNG or JPEG images.
 
 #### Parameters
 - `image: int[]` - PNG or JPEG as byte array
-- `size: integer` - Font height in pixels
 
 #### Returns
-- `FrameBuffer` - Image loaded to a frame buffer
+- [`FrameBuffer`](FrameBuffer.md) - Image loaded to a frame buffer
 
 #### Throws
 - If the image was invalid
@@ -161,10 +165,9 @@ Works with byte array string of PNG or JPEG images, such as from [`ReadHandle.re
 
 #### Parameters
 - `image: string` - PNG or JPEG as byte array string
-- `size: integer` - Font height in pixels
 
 #### Returns
-- `FrameBuffer` - Image loaded to a frame buffer
+- [`FrameBuffer`](FrameBuffer.md) - Image loaded to a frame buffer
 
 #### Throws
 - If the image was invalid

@@ -22,6 +22,9 @@ Rasterize the provided text to a frame buffer
 #### Returns
 - `FrameBuffer` - Frame buffer of rasterized text
 
+#### See also
+- [`graphics.packRGB(r,g,b)`](graphics.md#packrgbr-integer-g-integer-b-integer-integer) and [`graphics.packRGBA(r,g,b,a)`](graphics.md#packrgbar-integer-g-integer-b-integer-a-integer-integer)
+
 ---
 
 ### `getTextSize(text: string): integer, integer`

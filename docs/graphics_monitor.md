@@ -23,7 +23,7 @@ Get a FrameBuffer that is the size of the monitor
 Can be called in either mode.
 
 #### Returns
-- `FrameBuffer` - The new frame buffer
+- [`FrameBuffer`](FrameBuffer.md) - The new frame buffer
 
 ---
 
@@ -43,7 +43,7 @@ Function will return false if monitor is in terminal mode.
 - If the provided buffer could not be converted to a FrameBuffer
 
 #### See
-- `FrameBuffer.toTable()` and `graphics.tableToFrameBuffer(tbl)`
+- [`FrameBuffer.getTable()`](FrameBuffer.md#gettable-table) and [`graphics.tableToFrameBuffer(tbl)`](graphics.md#tabletoframebuffertbl-table-framebuffer)
 
 ---
 
