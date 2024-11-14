@@ -116,7 +116,7 @@ Unpacks Red, Green, Blue, and Alpha from an ARGB8 integer.
 - `integer` - Alpha component ( 0 - 255 )
 
 #### See
-- [`graphics.packRGB(r,g,b)`](#packrgbr-integer-g-integer-b-integer-integer) and [`graphics.packRGBA(r,g,b)`](#packrgbar-integer-g-integer-b-integer-a-integer-integer)
+- [`graphics.packRGB(r,g,b)`](#packrgbr-integer-g-integer-b-integer-integer) and [`graphics.packRGBA(r,g,b,a)`](#packrgbar-integer-g-integer-b-integer-a-integer-integer)
 
 ---
 
