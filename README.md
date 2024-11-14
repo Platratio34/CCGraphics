@@ -1,6 +1,6 @@
 # CC:Graphics
 
-CC:Graphics is an extension of (https://github.com/cc-tweaked/CC-Tweaked)[CC:Tweaked] that adds "high" definition graphics monitors (and soon computers) to Minecraft.
+CC:Graphics is an extension of [CC:Tweaked](https://github.com/cc-tweaked/CC-Tweaked) that adds "high" definition graphics monitors (and soon computers) to Minecraft.
 
 ## LUA documentation
 
