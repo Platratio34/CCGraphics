@@ -51,7 +51,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     private static final Logger LOG = LoggerFactory.getLogger(GraphicsMonitorBlockEntity.class);
     public static final double RENDER_BORDER = 0.125;
     public static final double RENDER_MARGIN = 0.03125;
-    public static final double RENDER_PIXEL_SCALE = 1d / (double)ServerGraphicsMonitor.DEFAULT_RESOLUTION;
+    public static final double RENDER_PIXEL_SCALE = 1d / (double) ServerGraphicsMonitor.DEFAULT_RESOLUTION;
     private static final String NBT_X = "XIndex";
     private static final String NBT_Y = "YIndex";
     private static final String NBT_WIDTH = "Width";
@@ -59,7 +59,8 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
 
     public static void register() {
         PeripheralLookup.get().registerForBlockEntities((e, d) -> {
-            return ((GraphicsMonitorBlockEntity)e).peripheral();}, BLOCK_ENTITY_TYPE);
+            return ((GraphicsMonitorBlockEntity) e).peripheral();
+        }, BLOCK_ENTITY_TYPE);
     }
 
     @Nullable
@@ -159,9 +160,9 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
                 });
             }
 
-            //TODO implement this?
+            // TODO implement this?
             // if (this.serverMonitor.pollTerminalChanged()) {
-            //     MonitorWatcher.enqueue(this);
+            // MonitorWatcher.enqueue(this);
             // }
 
         }
@@ -247,15 +248,16 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     }
 
     // public final void read(@Nullable TerminalState state) {
-    //     if (this.xIndex == 0 && this.yIndex == 0) {
-    //         if (this.clientMonitor == null) {
-    //             this.clientMonitor = new ClientGraphicsMonitor(this);
-    //         }
+    // if (this.xIndex == 0 && this.yIndex == 0) {
+    // if (this.clientMonitor == null) {
+    // this.clientMonitor = new ClientGraphicsMonitor(this);
+    // }
 
-    //         this.clientMonitor.read(state);
-    //     } else {
-    //         LOG.warn("Receiving monitor state for non-origin terminal at {}", this.getPos());
-    //     }
+    // this.clientMonitor.read(state);
+    // } else {
+    // LOG.warn("Receiving monitor state for non-origin terminal at {}",
+    // this.getPos());
+    // }
     // }
 
     private void updateBlockState() {
@@ -267,12 +269,14 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
 
     public Direction getDirection() {
         BlockState state = this.getCachedState();
-        return state.contains(GraphicsMonitorBlock.FACING) ? (Direction) state.get(GraphicsMonitorBlock.FACING) : Direction.NORTH;
+        return state.contains(GraphicsMonitorBlock.FACING) ? (Direction) state.get(GraphicsMonitorBlock.FACING)
+                : Direction.NORTH;
     }
 
     public Direction getOrientation() {
         BlockState state = this.getCachedState();
-        return state.contains(GraphicsMonitorBlock.ORIENTATION) ? (Direction) state.get(GraphicsMonitorBlock.ORIENTATION)
+        return state.contains(GraphicsMonitorBlock.ORIENTATION)
+                ? (Direction) state.get(GraphicsMonitorBlock.ORIENTATION)
                 : Direction.NORTH;
     }
 
@@ -516,17 +520,26 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     void monitorTouched(float xPos, float yPos, float zPos) {
         XYPair pair = XYPair.of(xPos, yPos, zPos, this.getDirection(), this.getOrientation())
                 .add((float) this.xIndex, (float) (this.height - this.yIndex - 1));
-        if (!((double) pair.x() > (double) this.width - 0.125)
-                && !((double) pair.y() > (double) this.height - 0.125) && !((double) pair.x() < 0.125)
-                && !((double) pair.y() < 0.125)) {
+
+        double widthFactor = (this.width * 8d) / ((this.width * 8d) - 2d);
+        double heightFactor = (this.height * 8d) / ((this.height * 8d) - 2d);
+
+        double x = (pair.x() * widthFactor);
+        double y = (pair.y() * heightFactor);
+
+        x -= this.width * (1d / ((this.width * 8d) - 2d));
+        y -= this.height * (1d / ((this.height * 8d) - 2d));
+
+        x /= (double) this.width;
+        y /= (double) this.height;
+
+        if (x >= 0d && x <= 1d && y >= 0d && y <= 1d) {
             ServerGraphicsMonitor serverMonitor = this.getServerMonitor();
             if (serverMonitor != null) {
-                double pixelSize = ((double) this.width - 0.3125) / (double) getPixelWidth();
 
-                int xPixelPos = (int) Math.min((double) getPixelWidth(),
-                            Math.max(((double) pair.x() - 0.125 - 0.03125) / pixelSize + 1.0, 1.0));
-                int yPixelPos = (int) Math.min((double) getPixelHeight(),
-                            Math.max(((double) pair.y() - 0.125 - 0.03125) / pixelSize + 1.0, 1.0));
+                int xPixelPos = (int) Math.floor(x * getPixelWidth());
+                int yPixelPos = (int) Math.floor(y * getPixelHeight());
+
                 this.eachComputer((c) -> {
                     c.queueEvent("monitor_touch", new Object[] { c.getAttachmentName(), xPixelPos, yPixelPos });
                 });
@@ -659,7 +672,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
         if (serverMonitor.setFrame(buffer)) {
             world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
             markDirty();
-            
+
             return true;
         }
         return false;
@@ -678,13 +691,13 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
         }
         return serverMonitor.getPixelHeight();
     }
-    
+
     public IPeripheral getPeripheral(Direction direction) {
         return peripheral();
     }
-    
+
     protected void onTick(World world, BlockPos pos, BlockState state) {
-        if(peripheral != null)
+        if (peripheral != null)
             peripheral.onUpdate();
     }
 
