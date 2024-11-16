@@ -41,4 +41,16 @@ public class ByteFlags extends BinaryDataType {
         return true;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        int m = 0b1;
+        for (int i = 0; i < 8; i++) {
+            if (flags[i])
+                hash |= m;
+            m = m << 1;
+        }
+        return hash;
+    }
+
 }

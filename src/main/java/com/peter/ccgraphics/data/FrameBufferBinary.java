@@ -25,7 +25,7 @@ public class FrameBufferBinary {
         protected boolean rle8 = false;
         protected boolean rle16 = false;
         protected boolean indexed = false;
-        protected boolean noAlpha = false;
+        protected boolean opaque = false;
 
         protected final HashMap<Integer, uint8> colorIndex = new HashMap<Integer, uint8>();
 
@@ -45,20 +45,48 @@ public class FrameBufferBinary {
                 rle8 = false;
         }
 
-        public void setNoAlpha(boolean v) {
+        public void setOpaque(boolean v) {
             if (v && indexed)
                 throw new RuntimeException("Encoding options `noAlpha` and `indexed` are incompatible");
-            noAlpha = v;
+            opaque = v;
         }
 
         public void setIndexed(boolean v) {
-            if (v && noAlpha)
+            if (v && opaque)
                 throw new RuntimeException("Encoding options `noAlpha` and `indexed` are incompatible");
-            noAlpha = v;
+            opaque = v;
         }
 
         public void indexColor(int index, int color) {
             colorIndex.put(color & 0x00ffffff, new uint8(index));
+        }
+
+        public void clearColorIndex() {
+            colorIndex.clear();
+        }
+
+        protected int lastColorIndex = 0;
+
+        public boolean tryIndexed() {
+            lastColorIndex = 0;
+            return tryIndexed(frameBuffer);
+        }
+
+        protected boolean tryIndexed(FrameBuffer frameBuffer) {
+            for (int i = 0; i < frameBuffer.getLength(); i++) {
+                int color = frameBuffer.getColorIndexed(i);
+                if (opaque)
+                    color &= 0x00ffffff;
+                if (colorIndex.containsKey(color)) {
+                    continue;
+                }
+                if (lastColorIndex > 0xff) {
+                    return false;
+                }
+                colorIndex.put(color, new uint8(lastColorIndex));
+                lastColorIndex++;
+            }
+            return true;
         }
 
         protected void write(byte b) {
@@ -94,7 +122,7 @@ public class FrameBufferBinary {
         }
 
         protected void writePixel(int color) {
-            if (noAlpha) {
+            if (opaque) {
                 write(new byte[] { (byte) ((color & 0xff0000) << 16), (byte) ((color & 0x00ff00) << 8),
                         (byte) (color & 0x0000ff) });
             } else if (indexed) {
@@ -104,12 +132,31 @@ public class FrameBufferBinary {
             }
         }
 
+        protected void writeColorIndex() {
+            int startPos = binary.size();
+            write(HEADER_TABLE_ENTRY_COLOR_INDEX_TYPE);
+            write(new byte[2]); // leaving space for entry length;
+
+            for (Entry<Integer, uint8> entry : colorIndex.entrySet()) {
+                write(entry.getValue());
+                int color = entry.getKey();
+                int[] comp = ColorHelper.unpackRGBA(color);
+                if (!opaque)
+                    write(comp[3]); // alpha
+                write(comp[0]); // red
+                write(comp[1]); // green
+                write(comp[2]); // blue
+            }
+            int length = binary.size() - startPos;
+            write(uint16.encode(length), startPos + 2); // write the entry length
+        }
+
         public byte[] encode() {
             binary.clear();
 
             write(FBB_TYPE_STRING);
 
-            write(new byte[4]); // leaving space for pointer to data section
+            write(uint32.encode(0)); // leaving space for pointer to data section
 
             write(uint16.encode(frameBuffer.getWidth()));
             write(uint16.encode(frameBuffer.getHeight()));
@@ -117,7 +164,7 @@ public class FrameBufferBinary {
             ByteFlags headerFlags = new ByteFlags();
             headerFlags.flags[0] = rle8;
             headerFlags.flags[1] = rle16;
-            headerFlags.flags[2] = noAlpha;
+            headerFlags.flags[2] = opaque;
             headerFlags.flags[3] = indexed;
             write(headerFlags);
 
@@ -125,33 +172,20 @@ public class FrameBufferBinary {
 
             // Start of header tables
             if (indexed) {
-                // throw new RuntimeException("Indexed color is currently un-implemented");
-                int startPos = binary.size();
-                write(HEADER_TABLE_ENTRY_COLOR_INDEX_TYPE);
-                write(new byte[2]); // leaving space for entry length;
-
-                for (Entry<Integer, uint8> entry : colorIndex.entrySet()) {
-                    write(entry.getValue());
-                    int color = entry.getKey();
-                    write((color & 0xff0000) >> 16);
-                    write((color & 0x00ff00) >> 8);
-                    write((color & 0x0000ff));
-                }
-                int length = binary.size() - startPos;
-                write(uint16.encode(length), startPos + 2); // write the entry length
+                writeColorIndex();
             }
 
             // start of data section
             write(uint32.encode(binary.size()), 0x4); // write data section pointer in header
 
             int dataStart = binary.size();
-            write(new byte[4]); // leaving space for data length value;
+            write(uint32.encode(0)); // leaving space for data length value;
 
             long lastPixel = 0x100000000l;
             int length = 0;
             for (int i = 0; i < frameBuffer.length(); i++) {
                 int color = frameBuffer.getColorIndexed(i);
-                if (noAlpha)
+                if (opaque)
                     color &= 0xffffff;
 
                 if (rle8 || rle16) {
@@ -160,11 +194,17 @@ public class FrameBufferBinary {
                         continue;
                     }
 
-                    boolean write = lastPixel != color;
-                    write = write || (rle8 && (length == 0xff));
-                    write = write || (rle16 && (length == 0xffff));
+                    if (rle8 && length >= 0xff) {
+                        write(uint8.encode(length));
+                        length -= 0xff;
+                    }
 
-                    if (write) {
+                    if (rle16 && length >= 0xffff) {
+                        write(uint16.encode(length));
+                        length -= 0xffff;
+                    }
+
+                    if (lastPixel != color) {
                         if (rle8)
                             write(uint8.encode(length));
                         if (rle16)
@@ -198,7 +238,7 @@ public class FrameBufferBinary {
         protected boolean rle8 = false;
         protected boolean rle16 = false;
         protected boolean indexed = false;
-        protected boolean noAlpha = false;
+        protected boolean opaque = false;
 
         protected final HashMap<uint8, Integer> colorIndex = new HashMap<uint8, Integer>();
 
@@ -242,7 +282,7 @@ public class FrameBufferBinary {
         }
 
         protected int readPixel(int start) {
-            if (noAlpha) {
+            if (opaque) {
                 int r = readUint8(start).value;
                 int g = readUint8(start+1).value;
                 int b = readUint8(start+2).value;
@@ -255,7 +295,7 @@ public class FrameBufferBinary {
         }
 
         protected int readPixel() {
-            if (noAlpha) {
+            if (opaque) {
                 int r = readUint8().value;
                 int g = readUint8().value;
                 int b = readUint8().value;
@@ -264,7 +304,21 @@ public class FrameBufferBinary {
                 uint8 index = readUint8();
                 return colorIndex.get(index);
             }
-            return (int)readUint32().value;
+            return (int) readUint32().value;
+        }
+        
+        protected void readColorIndex(int entryEnd) {
+            while (pointer < entryEnd) {
+                uint8 index = readUint8();
+                int a = 0xff;
+                if(!opaque)
+                    a = readUint8().value;
+                int r = readUint8().value;
+                int g = readUint8().value;
+                int b = readUint8().value;
+                int color = ColorHelper.pack(r, g, b, a);
+                colorIndex.put(index, color);
+            }
         }
 
 
@@ -284,7 +338,7 @@ public class FrameBufferBinary {
             ByteFlags flags = read(new ByteFlags());
             rle8 = flags.flags[0];
             rle16 = flags.flags[1];
-            noAlpha = flags.flags[2];
+            opaque = flags.flags[2];
             indexed = flags.flags[3];
 
             pointer += 3; // skip padding
@@ -295,14 +349,7 @@ public class FrameBufferBinary {
             while (entryType.equals(HEADER_TABLE_ENTRY_LAST)) {
                 int entryLength = readUint16().value;
                 if (entryType.equals(HEADER_TABLE_ENTRY_COLOR_INDEX_TYPE)) {
-                    while (pointer < entryStart + entryLength) {
-                        uint8 index = readUint8();
-                        int r = readUint8().value;
-                        int g = readUint8().value;
-                        int b = readUint8().value;
-                        int color = ColorHelper.pack(r, g, b);
-                        colorIndex.put(index, color);
-                    }
+                    readColorIndex(entryStart + entryLength);
                 } else {
                     // unknown entry type
                 }
@@ -318,13 +365,24 @@ public class FrameBufferBinary {
             int pixelIndex = 0;
             while (pointer < dataPointer + dataLength) {
                 if (rle8 || rle16) {
-                    int l = 0;
-                    if (rle8)
-                        l = readUint8().value;
-                    if (rle16)
-                        l = readUint16().value;
+                    int repetitions = 0;
+                    if (rle8) {
+                        int v = readUint8().value;
+                        while (v == 0xff) {
+                            repetitions += v;
+                            v = readUint8().value;
+                        }
+                        repetitions += v;
+                    } else if (rle16) {
+                        int v = readUint16().value;
+                        while (v == 0xffff) {
+                            repetitions += v;
+                            v = readUint16().value;
+                        }
+                        repetitions += v;
+                    }
                     int color = readPixel();
-                    for (int i = 0; i <= l; i++) {
+                    for (int i = 0; i <= repetitions; i++) {
                         frameBuffer.setColorIndexed(pixelIndex, color);
                         pixelIndex++;
                     }

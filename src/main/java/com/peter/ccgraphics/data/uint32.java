@@ -48,4 +48,9 @@ public class uint32 extends BinaryDataType {
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return (int)value;
+    }
 }

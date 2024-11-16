@@ -50,4 +50,9 @@ public class uint8 extends BinaryDataType {
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return value;
+    }
 }

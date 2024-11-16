@@ -14,4 +14,7 @@ public abstract class BinaryDataType {
 
     @Override
     public abstract boolean equals(Object obj);
+
+    @Override
+    public abstract int hashCode();
 }

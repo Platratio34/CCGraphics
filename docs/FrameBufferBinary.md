@@ -4,13 +4,13 @@
 
 | Byte(s) | Type | Description |
 |---|---|---|
-| 0 - 3 | Byte String | File type (`"fbb "`) |
+| 0 - 3 | utf8 String | File type (`"fbb "`) |
 | 4 - 7 | `uint32` | Pointer to start of Data section |
 | 8 - 9 | `uint16` | Width |
 | a - b | `uint16` | Height |
-| c | Byte Flags | Header Flags |
+| c | ByteFlags | Header Flags |
 | d - f | `null` | Padding |
-| 10 - ?? | HeaderTableEntry List | Header Table Entries |
+| 10 ... | HeaderTableEntry ... | Header Table Entries. Last entry will have a type of `0x0000` |
 
 ### Header Flags
 
@@ -78,7 +78,8 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 |---|---|---|
 |  |  | Pixel (Repeated for every pixel) |
 | 0 | `uint8` | Number of repetitions of the pixel (not including first instance) |
-| 1 - 4 | `ARGB8` | Pixel color |
+| 1 ... | `uint8`... | Number of additional repetitions of the pixel **IF** previous byte was `0xff` **ELSE** move on to pixel data |
+| ? - ? | Pixel | Pixel color |
 
 ### Run-Length-Encoding 16b
 
@@ -86,43 +87,8 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 |---|---|---|
 |  |  | Pixel (Repeated for every pixel) |
 | 0 - 1 | `uint16` | Number of repetitions of the pixel (not including first instance) |
-| 2 - 5 | `ARGB8` | Pixel color |
-
----
-
-### Run-Length-Encoding 8b, No Alpha
-
-| Byte(s) | Type | Description |
-|---|---|---|
-|  |  | Pixel (Repeated for every pixel) |
-| 0 | `uint8` | Number of repetitions of the pixel (not including first instance) |
-| 1 - 3 | `RGB8` | Pixel color |
-
-### Run-Length-Encoding 16b, No Alpha
-
-| Byte(s) | Type | Description |
-|---|---|---|
-|  |  | Pixel (Repeated for every pixel) |
-| 0 - 1 | `uint16` | Number of repetitions of the pixel (not including first instance) |
-| 2 - 4 | `RGB8` | Pixel color |
-
----
-
-### Run-Length-Encoding 8b, Indexed
-
-| Byte(s) | Type | Description |
-|---|---|---|
-|  |  | Pixel (Repeated for every pixel) |
-| 0 | `uint8` | Number of repetitions of the pixel (not including first instance) |
-| 1 | `uint8` | Color index |
-
-### Run-Length-Encoding 16b, Indexed
-
-| Byte(s) | Type | Description |
-|---|---|---|
-|  |  | Pixel (Repeated for every pixel) |
-| 0 - 1 | `uint16` | Number of repetitions of the pixel (not including first instance) |
-| 2 | `uint8` | Color index |
+| 1 ... | `uint16`... | Number of additional repetitions of the pixel **IF** previous value was `0xffff` **ELSE** move on to pixel data |
+| ? - ? | Pixel | Pixel color |
 
 ---
 
@@ -132,23 +98,20 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 
 | Byte(s) | Type | Description |
 |---|---|---|
-| 0 - 3 | Byte String | File type (`"fbs "`) |
+| 0 - 3 | utf8 String | File type (`"fbs "`) |
 | 4 - 7 | `uint32` | Pointer to start of Data section |
 | 8 - 9 | `uint16` | Width |
 | a - b | `uint16` | Height |
-| c | Byte Flags | Header Flags |
-| d | null | Padding |
+| c | ByteFlags | Header Flags |
+| d | `null` | Padding |
 | e - f | `uint16` | Number of frames |
-| 10 - ?? | HeaderTableEntry ... | Header Table |
+| 10 ... | HeaderTableEntry ... | Header Table Entries. Last entry will have a type of `0x0000` |
 
 ### Header Flags
 
 | Bit | Description |
 |---|---|
-| 4 | Change Only 8b |
-| 5 | Change Only 16b |
-| 6 | Change Only 15b |
-| 7 | Change Only Var |
+| 4 | Change Only |
 
 ## Data
 
@@ -161,34 +124,14 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 |  |  | Frame (Repeated for every fame) |
 | 0 - 3 | `uint32` | Frame Length (including header)
 | 4 - 5 | `uint16` | Frame Number |
-| 6 - 7 | `uint16` | Number of repetitions (not including first instance) |
+| 6 | `uint8` | Number of repetitions (not including first instance) |
+| 7 | `uint8` | Frame Type |
 | 8 - `FrameLength` | Pixel ... | Pixel data |
 
-### Change Only 8b
+### Change Only
 
 | Byte(s) | Type | Description |
 |---|---|---|
 | 0 | `uint8` | Number of pixels to skip |
-| 2 - ? | Pixel | Pixel |
-
-### Change Only 16b
-
-| Byte(s) | Type | Description |
-|---|---|---|
-| 0 - 1 | `uint16` | Number of pixels to skip |
-| 2 - ? | Pixel | Pixel |
-
-### Change Only 15b
-
-| Byte(s) | Type | Description |
-|---|---|---|
-| 0 - ? | `uint7` **OR** `uint15` | Number of pixels to skip. If bit `0` is set, treat as `uint15` |
-| ? - ? | Pixel | Pixel |
-
-### Change Only Var
-
-| Byte(s) | Type | Description |
-|---|---|---|
-| 0 | `uint8` | Number of pixels to skip |
-| 1 ... | `uint8`... | Number of pixels to skip **IF** previous byte was `0xff` **ELSE** move on to pixel data |
+| 1 ... | `uint8`... | Number of additional pixels to skip **IF** previous byte was `0xff` **ELSE** move on to pixel data |
 | ? - ? | Pixel | Pixel |
