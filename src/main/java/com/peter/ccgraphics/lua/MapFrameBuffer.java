@@ -105,11 +105,21 @@ public class MapFrameBuffer extends FrameBuffer {
         map.put(xyToIndex(x, y), color);
     }
 
+    @Override
+    public void setColorIndexed(int index, int color) {
+        map.put((double)index, color);
+    }
+
 
     @Override
     public int getPixel(int x, int y) {
         assertInFrame(x, y);
         double index = xyToIndex(x, y);
+        return getValueAtIndex(index);
+    }
+
+    @Override
+    public int getColorIndexed(int index) {
         return getValueAtIndex(index);
     }
 

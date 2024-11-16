@@ -634,4 +634,26 @@ public abstract class FrameBuffer extends CustomLuaObject {
             System.out.println(l);
         }
     }
+
+    public int getLength() {
+        return width * height;
+    }
+
+    public abstract int getColorIndexed(int index);
+
+    public abstract void setColorIndexed(int index, int color);
+
+    @Override
+    public boolean equals(Object obj) {
+        if (! (obj instanceof FrameBuffer) )
+            return false;
+        FrameBuffer other = (FrameBuffer) obj;
+        if (width != other.width || height != other.height)
+            return false;
+        for (int i = 0; i < width * height; i++) {
+            if (getColorIndexed(i) != other.getColorIndexed(i))
+                return false;
+        }
+        return true;
+    }
 }

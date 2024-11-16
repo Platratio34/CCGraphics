@@ -37,9 +37,19 @@ public class ArrayFrameBuffer extends FrameBuffer {
     }
 
     @Override
+    public void setColorIndexed(int index, int color) {
+        buffer[index] = color;
+    }
+
+    @Override
     public int getPixel(int x, int y) {
         assertInFrame(x, y);
         return buffer[xyToIndex(x, y)];
+    }
+
+    @Override
+    public int getColorIndexed(int index) {
+        return buffer[index];
     }
 
     @Override

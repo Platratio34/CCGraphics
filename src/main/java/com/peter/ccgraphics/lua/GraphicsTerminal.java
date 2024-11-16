@@ -42,14 +42,13 @@ public class GraphicsTerminal extends Terminal {
         if (font == null) {
             font = FontLoader.getFont("mono", size);
         }
-        charHeight = font.charHeight + 2;
-        charWidth = font.charWidth + 1;
-        return FontLoader.getFont("mono", size);
+        charHeight = font.vSpacing;
+        charWidth = font.hSpacing;
+        return font;
     }
 
     public FrameBuffer renderToFrame(boolean cursorVisible) {
         FrameBuffer frame = new ArrayFrameBuffer(pixelWidth, pixelHeight);
-        // frame.drawBoxFilled(0,0,frame.getWidth(),frame.getHeight(), )
 
         LuaFont font = getFont();
 
@@ -59,6 +58,7 @@ public class GraphicsTerminal extends Terminal {
             TextBuffer bColors = backgroundColour[row];
             TextBuffer tColors = textColour[row];
             TextBuffer line = text[row];
+
             for (int col = 0; col < width; col++) {
                 int sX = 1 + (col * charWidth);
                 int sY = 1 + (row * charHeight);

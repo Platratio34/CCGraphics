@@ -38,6 +38,11 @@ public class CharacterGlyph extends FrameBuffer {
         throw new UnsupportedOperationException("CharacterGlyph is read-only");
     }
 
+    @Override
+    public void setColorIndexed(int index, int color) {
+        throw new UnsupportedOperationException("CharacterGlyph is read-only");
+    }
+
     protected void setPixel(int x, int y) {
         if (!inFrame(x, y))
             throw new ArrayIndexOutOfBoundsException(
@@ -52,11 +57,15 @@ public class CharacterGlyph extends FrameBuffer {
         if (!inFrame(x, y))
             throw new ArrayIndexOutOfBoundsException(
                     "Pixel must be between (0,0) and (width-1, height-1) inclusive, was (" + x + "," + y + ")");
-        return isFilled(x, y) ? color : 0x00000000;
+        return isFilled(x + (y * width)) ? color : 0x00000000;
+    }
+    
+    @Override
+    public int getColorIndexed(int index) {
+        return isFilled(index) ? color : 0x00000000;
     }
 
-    private boolean isFilled(int x, int y) {
-        int pI = x + (y * width);
+    private boolean isFilled(int pI) {
         int bI = pI / 8;
         byte mask = (byte) (0b1 << (pI % 8));
         return (glyph[bI] & mask) != 0;
