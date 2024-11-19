@@ -13,7 +13,7 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
     public static final uint8 FRAME_TYPE_DEFAULT = new uint8(0x0000);
     public static final uint8 FRAME_TYPE_KEYFRAME = new uint8(0x0000);
 
-    public class Encoder extends FrameBufferBinary.Encoder {
+    public static class Encoder extends FrameBufferBinary.Encoder {
 
         protected final FrameBuffer[] frameBuffers;
 
@@ -113,7 +113,7 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
 
                 long lastPixel = 0x100000000l;
                 int length = 0;
-                for (int pI = 0; pI < frameBuffer.length(); pI++) {
+                for (int pI = 0; pI < frameBuffer.getLength(); pI++) {
                     int color = frameBuffer.getColorIndexed(pI);
                     if (opaque)
                         color &= 0xffffff;
@@ -191,7 +191,7 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
         }
     }
 
-    class Decoder extends FrameBufferBinary.Decoder {
+    public static class Decoder extends FrameBufferBinary.Decoder {
 
         protected FrameBuffer[] frameBuffers;
 

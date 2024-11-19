@@ -19,7 +19,7 @@ public class uint15 extends BinaryDataType {
 
     @Override
     public void fromByte(byte[] bytes, int start) {
-        value = ((bytes[start] & 0x7f) << 8) + bytes[start+1];
+        value = ((bytes[start] & 0x7f) << 8) | (bytes[start+1] & 0xff);
     }
     
     @Override
@@ -28,7 +28,7 @@ public class uint15 extends BinaryDataType {
     }
 
     public static byte[] encode(int value) {
-        return new byte[] { (byte) ( ( value >> 8 ) & 0x7f ), (byte) (value & 0xff) };
+        return new byte[] { (byte) ( ( (value & 0x7fff) >> 8 )  ), (byte) value };
     }
 
     public static uint15 from(byte[] bytes, int start) {
@@ -50,6 +50,11 @@ public class uint15 extends BinaryDataType {
     @Override
     public int hashCode() {
         return value;
+    }
+
+    @Override
+    public String hex() {
+        return Integer.toHexString(value);
     }
 
 }

@@ -17,4 +17,6 @@ public abstract class BinaryDataType {
 
     @Override
     public abstract int hashCode();
+
+    public abstract String hex();
 }

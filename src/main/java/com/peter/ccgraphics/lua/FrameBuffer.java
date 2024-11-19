@@ -3,6 +3,9 @@ package com.peter.ccgraphics.lua;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.peter.ccgraphics.CCGraphics;
+import com.peter.ccgraphics.data.FrameBufferBinary;
+
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -539,9 +542,14 @@ public abstract class FrameBuffer extends CustomLuaObject {
     }
 
     private void encode(ByteBuf buf) {
-        buf.writeInt(width);
-        buf.writeInt(height);
-        encodePixels(buf);
+        // buf.writeInt(width);
+        // buf.writeInt(height);
+        // encodePixels(buf);
+        FrameBufferBinary.Encoder encoder = new FrameBufferBinary.Encoder(this);
+        encoder.setRle8(true);
+        encoder.setOpaque(true);
+        encoder.tryIndexed();
+        buf.writeBytes(encoder.encode());
     }
 
     /**
@@ -556,11 +564,19 @@ public abstract class FrameBuffer extends CustomLuaObject {
     protected abstract void encodePixels(ByteBuf buf);
 
     private static FrameBuffer decode(ByteBuf buf) {
-        int width = buf.readInt();
-        int height = buf.readInt();
-        ArrayFrameBuffer frame = new ArrayFrameBuffer(width, height);
-        frame.decodePixels(buf);
-        return frame;
+        FrameBufferBinary.Decoder decoder = new FrameBufferBinary.Decoder();
+        CCGraphics.LOGGER.info("Decoding frame buffer");
+        byte[] bytes = new byte[buf.readableBytes()];
+        buf.getBytes(buf.readerIndex(), bytes);
+        try {
+            FrameBuffer frame = decoder.decode(bytes);
+            int endOfFrame = (buf.readerIndex() + (decoder.usedBytes()));
+            buf.readerIndex(endOfFrame);
+            return frame;
+        } catch (Exception e) {
+            CCGraphics.LOGGER.error("Unable to decode frame buffer", e);
+            return null;
+        }
     }
 
     /**
@@ -635,6 +651,10 @@ public abstract class FrameBuffer extends CustomLuaObject {
         }
     }
 
+    /**
+     * Gets the total number of pixels in the frame buffer
+     * @return total pixels
+     */
     public int getLength() {
         return width * height;
     }

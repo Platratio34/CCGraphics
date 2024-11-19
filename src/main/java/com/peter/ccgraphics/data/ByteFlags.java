@@ -53,4 +53,9 @@ public class ByteFlags extends BinaryDataType {
         return hash;
     }
 
+    @Override
+    public String hex() {
+        return Integer.toHexString(toBytes()[0]);
+    }
+
 }

@@ -18,8 +18,8 @@
 |---|---|
 | 0 | Run-Length-Encoding 8b |
 | 1 | Run-Length-Encoding 16b |
-| 2 | No Alpha (Incompatible w/ Indexed) |
-| 3 | Indexed Color (Incompatible w/ No Alpha) |
+| 2 | Opaque |
+| 3 | Indexed Color |
 
 ### Header Table
 
@@ -39,10 +39,7 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 | 2 - 3 | `uint16` | Entry length in bytes (including header) |
 |---|---|---|
 |  |  | Indexed Color Data (Repeated as needed within entry length) |
-| 0 | `uint8` | Color index |
-| 1 | `uint8` | Red value |
-| 2 | `uint8` | Green value |
-| 3 | `uint8` | Blue value |
+| 0 - ? | `ARGB8` **OR** `RGB8` | Color. **IF** not `opaque` type is `ARGB8` **ELSE** type is `RGB8` |
 
 ## Data
 
@@ -61,7 +58,7 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 | Byte(s) | Type | Description |
 |---|---|---|
 |  |  | Pixel (Repeated for every pixel) |
-| 0 - 2 | RGB8 | Pixel color |
+| 0 - 2 | `RGB8` | Pixel color |
 
 ### Indexed
 

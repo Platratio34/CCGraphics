@@ -2,6 +2,8 @@ package com.peter.ccgraphics.data;
 
 public class uint32 extends BinaryDataType {
 
+    public static final int MAX = 0xffffffff;
+
     public long value;
 
     public uint32() {
@@ -19,7 +21,7 @@ public class uint32 extends BinaryDataType {
 
     @Override
     public void fromByte(byte[] bytes, int start) {
-        value = (bytes[start] << 24) + (bytes[start+1] << 16) + (bytes[start+2] << 8) + bytes[start+3];
+        value = ((bytes[start] & 0xff) << 24) | ((bytes[start + 1] & 0xff) << 16) | ((bytes[start + 2] & 0xff) << 8) | (bytes[start + 3] & 0xff);
     }
     
     @Override
@@ -28,7 +30,12 @@ public class uint32 extends BinaryDataType {
     }
 
     public static byte[] encode(long value) {
-        return new byte[] { (byte) ( ( value >> 24 ) & 0xff ), (byte) ( ( value >> 16 ) & 0xff ), (byte) ( ( value >> 8 ) & 0xff ), (byte) (value & 0xff) };
+        return new byte[] {
+                (byte) ((value >> 24)),
+                (byte) ((value >> 16)),
+                (byte) ((value >> 8)),
+                (byte) (value)
+        };
     }
 
     public static uint32 from(byte[] bytes, int start) {
@@ -52,5 +59,10 @@ public class uint32 extends BinaryDataType {
     @Override
     public int hashCode() {
         return (int)value;
+    }
+
+    @Override
+    public String hex() {
+        return Long.toHexString(value);
     }
 }

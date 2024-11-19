@@ -2,6 +2,8 @@ package com.peter.ccgraphics.data;
 
 public class uint8 extends BinaryDataType {
 
+    public static final int MAX = 0xff;
+
     public int value;
 
     public uint8() {
@@ -23,7 +25,7 @@ public class uint8 extends BinaryDataType {
 
     @Override
     public void fromByte(byte[] bytes, int start) {
-        value = bytes[start];
+        value = bytes[start] & 0xff;
     }
     
     @Override
@@ -54,5 +56,10 @@ public class uint8 extends BinaryDataType {
     @Override
     public int hashCode() {
         return value;
+    }
+
+    @Override
+    public String hex() {
+        return Integer.toHexString(value);
     }
 }
