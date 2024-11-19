@@ -565,7 +565,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
 
     private static FrameBuffer decode(ByteBuf buf) {
         FrameBufferBinary.Decoder decoder = new FrameBufferBinary.Decoder();
-        CCGraphics.LOGGER.info("Decoding frame buffer");
+        // CCGraphics.LOGGER.info("Decoding frame buffer");
         byte[] bytes = new byte[buf.readableBytes()];
         buf.getBytes(buf.readerIndex(), bytes);
         try {

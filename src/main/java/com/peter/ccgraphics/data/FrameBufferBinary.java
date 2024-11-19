@@ -19,6 +19,8 @@ public class FrameBufferBinary {
     protected static final uint16 HEADER_TABLE_ENTRY_COLOR_INDEX_TYPE = new uint16(0x0001);
     protected static final uint16 HEADER_TABLE_ENTRY_LAST = new uint16(0x00);
 
+    protected static final String[] HEADER_FLAG_NAMES = new String[] { "rle8", "rle16", "opaque", "indexed" };
+
     protected static final Logger LOGGER = LoggerFactory.getLogger(FrameBufferBinary.class);
 
     public static class Encoder {
@@ -73,7 +75,12 @@ public class FrameBufferBinary {
 
         public boolean tryIndexed() {
             lastColorIndex = 0;
-            return tryIndexed(frameBuffer);
+            boolean suc = tryIndexed(frameBuffer);
+            if (suc) {
+                // LOGGER.info("Color indexing succeeded");
+                indexed = true;
+            }
+            return suc;
         }
 
         protected boolean tryIndexed(FrameBuffer frameBuffer) {
@@ -91,8 +98,6 @@ public class FrameBufferBinary {
                 indexColor(lastColorIndex, color);
                 lastColorIndex++;
             }
-            LOGGER.info("Color indexing succeeded");
-            indexed = true;
             return true;
         }
 
@@ -175,7 +180,7 @@ public class FrameBufferBinary {
         public byte[] encode() {
             binary.clear();
 
-            LOGGER.info("Starting encode of frame buffer ...");
+            // LOGGER.info("Starting encode of frame buffer ...");
 
             write(FBB_TYPE_STRING);
 
@@ -201,7 +206,7 @@ public class FrameBufferBinary {
             }
             write(HEADER_TABLE_ENTRY_LAST);
 
-            LOGGER.info("- Starting encode of data section at 0x{}", pointerHex());
+            // LOGGER.info("- Starting encode of data section at 0x{}", pointerHex());
 
             // start of data section
             int dataSectionPointer = pointer();
@@ -212,6 +217,8 @@ public class FrameBufferBinary {
             write(uint32.encode(0)); // leaving space for data length value;
 
             int lastPixel = frameBuffer.getColorIndexed(0);
+            if (opaque)
+                lastPixel &= 0x00ffffff;
             int length = -1; // set to `-1` to not count first instance of a color
             for (int i = 0; i < frameBuffer.getLength(); i++) {
                 int color = frameBuffer.getColorIndexed(i);
@@ -226,19 +233,20 @@ public class FrameBufferBinary {
                 if (rle8 && length >= uint8.MAX) {
                     write(uint8.encode(uint8.MAX));
                     length -= uint8.MAX;
-                }
-
-                if (rle16 && length >= uint16.MAX) {
+                    // LOGGER.info("Writing extra byte for length");
+                } else if (rle16 && length >= uint16.MAX) {
                     write(uint16.encode(uint16.MAX));
                     length -= uint16.MAX;
+                    // LOGGER.info("Writing extra byte for length");
                 }
 
                 if (lastPixel != color) {
                     if (rle8)
                         write(uint8.encode(length));
-                    if (rle16)
+                    else if (rle16)
                         write(uint16.encode(length));
-
+                    // if (pointer() < 128)
+                    //     LOGGER.info("- [{}] {}, 0x{}", pointerHex(), length, Integer.toHexString(length));
                     writePixel(lastPixel);
 
                     length = 0;
@@ -250,7 +258,7 @@ public class FrameBufferBinary {
             if (rle8 || rle16) {
                 if (rle8)
                     write(uint8.encode(length));
-                if (rle16)
+                else if (rle16)
                     write(uint16.encode(length));
 
                 writePixel(lastPixel);
@@ -259,7 +267,9 @@ public class FrameBufferBinary {
             int dataLength = pointer() - dataStart;
             write(uint32.encode(dataLength), dataStart); // write the data section length
 
-            LOGGER.info("Done encoding frame buffer: Data section was {} bytes", dataLength);
+            // LOGGER.info("Done encoding frame buffer: Data section was {} bytes", dataLength);
+            float compressionRatio = ((float) pointer()) / ((float) frameBuffer.getLength());
+            // LOGGER.info("Compression Ratio: {} bytes per pixel", compressionRatio);
 
             return ArrayUtils.toPrimitive(binary.toArray(new Byte[0]));
         }
@@ -281,34 +291,16 @@ public class FrameBufferBinary {
         public Decoder() {
         };
 
-        protected uint16 readUint16(int start) {
-            return read(start, new uint16());
-        }
-
         protected uint16 readUint16() {
             return read(new uint16());
-        }
-
-        protected uint32 readUint32(int start) {
-            return read(start, new uint32());
         }
 
         protected uint32 readUint32() {
             return read(new uint32());
         }
 
-        protected uint8 readUint8(int start) {
-            return read(start, new uint8());
-        }
-
         protected uint8 readUint8() {
             return read(new uint8());
-        }
-        
-
-        protected <T extends BinaryDataType> T read(int start, T type) {
-            type.fromByte(binary, start);
-            return type;
         }
 
         protected <T extends BinaryDataType> T read(T type) {
@@ -320,19 +312,6 @@ public class FrameBufferBinary {
             type.fromByte(binary, pointer);
             pointer += type.getLength();
             return type;
-        }
-
-        protected int readPixel(int start) {
-            if (opaque) {
-                int r = readUint8(start).value;
-                int g = readUint8(start+1).value;
-                int b = readUint8(start+2).value;
-                return ColorHelper.pack(r, g, b);
-            } else if (indexed) {
-                uint8 index = readUint8(start);
-                return colorIndex.get(index.value);
-            }
-            return (int)readUint32(start).value;
         }
 
         protected int readPixel() {
@@ -367,7 +346,7 @@ public class FrameBufferBinary {
         public FrameBuffer decode(byte[] bytes) throws IOException {
             this.binary = bytes;
 
-            LOGGER.info("Starting decode of frame buffer ...");
+            // LOGGER.info("Starting decode of frame buffer ...");
 
             pointer = 0;
 
@@ -378,7 +357,7 @@ public class FrameBufferBinary {
             }
             
             int dataPointer = (int) readUint32().value;
-            LOGGER.info("- Data pointer: 0x{}", Integer.toHexString(dataPointer));
+            // LOGGER.info("- Data pointer: 0x{}", Integer.toHexString(dataPointer));
 
             int width = readUint16().value;
             // LOGGER.info("- 0x{} Width: {}", Integer.toHexString(pointer-2), width);
@@ -386,10 +365,13 @@ public class FrameBufferBinary {
             // LOGGER.info("- 0x{} Height: {}", Integer.toHexString(pointer-2), height);
 
             ByteFlags flags = read(new ByteFlags());
+            flags.flagNames = HEADER_FLAG_NAMES;
             rle8 = flags.flags[0];
             rle16 = flags.flags[1];
             opaque = flags.flags[2];
             indexed = flags.flags[3];
+
+            // LOGGER.info("- Header Flags: {}", flags);
 
             pointer += 3; // skip padding
 
@@ -401,7 +383,8 @@ public class FrameBufferBinary {
             uint16 entryType = readUint16();
             while (!entryType.equals(HEADER_TABLE_ENTRY_LAST)) {
                 if (headersPresent.containsKey(entryType)) {
-                    throw new IOException("Duplicate header: type 0x"+entryType.hex()+" at 0x"+Integer.toHexString(pointer-2));
+                    throw new IOException("Duplicate header: type 0x" + entryType.hex() + " at 0x"
+                            + Integer.toHexString(pointer - 2));
                 }
                 headersPresent.put(entryType, true);
                 // LOGGER.info("- Header Table Entry: {}", entryType.hex());
@@ -420,6 +403,7 @@ public class FrameBufferBinary {
                 pointer = entryStart + entryLength;
                 entryType = readUint16();
             }
+            // LOGGER.info("- - Reached end of header table");
 
             // LOGGER.info("- Starting decode of data section");
 
@@ -430,9 +414,10 @@ public class FrameBufferBinary {
             // LOGGER.info("- - Length of data section: {}", dataLengthLong);
             
             frameBuffer = new ArrayFrameBuffer(width, height);
+            // LOGGER.info("- - For frame of {} pixels", frameBuffer.getLength());
 
             int pixelIndex = 0;
-            while (pointer < dataPointer + dataLength && pixelIndex < frameBuffer.getLength()) {
+            while (pointer < dataPointer + dataLength && pixelIndex < frameBuffer.getLength()/* && pixelIndex < 1000 */) {
                 // LOGGER.info("- - {}: Starting decode", pixelIndex);
                 if (rle8 || rle16) {
                     int repetitions = 0;
@@ -464,9 +449,9 @@ public class FrameBufferBinary {
                         pixelIndex++;
                     }
                     // if(repetitions > 0)
-                    //     LOGGER.info("- - {}-{} Decoded", sPixel, pixelIndex);
+                    //     LOGGER.info("- - {}-{} Decoded to 0x{}", sPixel, pixelIndex, Integer.toHexString(color));
                     // else
-                    //     LOGGER.info("- - {} Decoded", pixelIndex);
+                    //     LOGGER.info("- - {} Decoded to 0x{}", pixelIndex, Integer.toHexString(color));
                 } else {
                     frameBuffer.setColorIndexed(pixelIndex, readPixel());
                     // LOGGER.info("- - {} Decoded", pixelIndex);
@@ -478,7 +463,7 @@ public class FrameBufferBinary {
                 pointer = dataPointer + dataLength;
             }
 
-            LOGGER.info("Finished decoding frame buffer");
+            // LOGGER.info("Finished decoding frame buffer");
 
             return frameBuffer;
         }

@@ -3,6 +3,7 @@ package com.peter.ccgraphics.data;
 public class ByteFlags extends BinaryDataType {
 
     public boolean[] flags = new boolean[8];
+    public String[] flagNames;
 
     @Override
     public byte[] toBytes() {
@@ -56,6 +57,23 @@ public class ByteFlags extends BinaryDataType {
     @Override
     public String hex() {
         return Integer.toHexString(toBytes()[0]);
+    }
+
+    @Override
+    public String toString() {
+        String str = "";
+        for (int i = 0; i < 8; i++) {
+            if (!flags[i])
+                continue;
+            if (i > 0)
+                str += ", ";
+            if (flagNames != null) {
+                str += flagNames[i];
+            } else {
+                str += "[" + i + "]";
+            }
+        }
+        return str;
     }
 
 }
