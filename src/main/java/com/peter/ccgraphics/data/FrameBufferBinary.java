@@ -15,9 +15,9 @@ import com.peter.ccgraphics.lua.FrameBuffer;
 
 public class FrameBufferBinary {
 
-    protected static final Utf8String FBB_TYPE_STRING = new Utf8String("fbb ");
+    protected static final Utf8String FBB_TYPE_STRING = new Utf8String("fbb", true);
     protected static final uint16 HEADER_TABLE_ENTRY_COLOR_INDEX_TYPE = new uint16(0x0001);
-    protected static final uint16 HEADER_TABLE_ENTRY_LAST = new uint16(0x00);
+    protected static final uint16 HEADER_TABLE_ENTRY_LAST = new uint16(0x0000);
 
     protected static final String[] HEADER_FLAG_NAMES = new String[] { "rle8", "rle16", "opaque", "indexed" };
 
@@ -77,7 +77,6 @@ public class FrameBufferBinary {
             lastColorIndex = 0;
             boolean suc = tryIndexed(frameBuffer);
             if (suc) {
-                // LOGGER.info("Color indexing succeeded");
                 indexed = true;
             }
             return suc;
@@ -92,7 +91,6 @@ public class FrameBufferBinary {
                     continue;
                 }
                 if (lastColorIndex > 0xff) {
-                    LOGGER.info("Color indexing failed, too many colors");
                     return false;
                 }
                 indexColor(lastColorIndex, color);
@@ -233,11 +231,9 @@ public class FrameBufferBinary {
                 if (rle8 && length >= uint8.MAX) {
                     write(uint8.encode(uint8.MAX));
                     length -= uint8.MAX;
-                    // LOGGER.info("Writing extra byte for length");
                 } else if (rle16 && length >= uint16.MAX) {
                     write(uint16.encode(uint16.MAX));
                     length -= uint16.MAX;
-                    // LOGGER.info("Writing extra byte for length");
                 }
 
                 if (lastPixel != color) {
@@ -245,8 +241,6 @@ public class FrameBufferBinary {
                         write(uint8.encode(length));
                     else if (rle16)
                         write(uint16.encode(length));
-                    // if (pointer() < 128)
-                    //     LOGGER.info("- [{}] {}, 0x{}", pointerHex(), length, Integer.toHexString(length));
                     writePixel(lastPixel);
 
                     length = 0;
@@ -268,7 +262,7 @@ public class FrameBufferBinary {
             write(uint32.encode(dataLength), dataStart); // write the data section length
 
             // LOGGER.info("Done encoding frame buffer: Data section was {} bytes", dataLength);
-            float compressionRatio = ((float) pointer()) / ((float) frameBuffer.getLength());
+            // float compressionRatio = ((float) pointer()) / ((float) frameBuffer.getLength());
             // LOGGER.info("Compression Ratio: {} bytes per pixel", compressionRatio);
 
             return ArrayUtils.toPrimitive(binary.toArray(new Byte[0]));
@@ -327,6 +321,40 @@ public class FrameBufferBinary {
             return (int) readUint32().value;
         }
         
+        protected void readHeaderEntries() throws IOException {
+            HashMap<uint16, Boolean> headersPresent = new HashMap<uint16, Boolean>();
+            int entryStart = pointer;
+            uint16 entryType = readUint16();
+            while (!entryType.equals(HEADER_TABLE_ENTRY_LAST)) {
+                if (headersPresent.containsKey(entryType)) {
+                    throw new IOException("Duplicate header: type 0x" + entryType.hex() + " at 0x"
+                            + Integer.toHexString(pointer - 2));
+                }
+                headersPresent.put(entryType, true);
+                // LOGGER.info("- Header Table Entry: {}", entryType.hex());
+                int entryLength = readUint16().value;
+
+                readHeaderEntry(entryType, entryStart + entryLength);
+
+                pointer = entryStart + entryLength;
+                entryType = readUint16();
+            }
+        }
+
+        /**
+         * Read a specific header entry. <b>OVERRIDE THIS FOR CUSTOM ENTRY TYPES</b>
+         * @param entryType
+         * @param entryEnd
+         */
+        protected void readHeaderEntry(uint16 entryType, int entryEnd) {
+            if (entryType.equals(HEADER_TABLE_ENTRY_COLOR_INDEX_TYPE)) {
+                // LOGGER.info("- Header contained color index table");
+                readColorIndex(entryEnd);
+            } else {
+                LOGGER.warn("- Unknown header table entry type: 0x{}", entryType.hex());
+            }
+        }
+
         protected void readColorIndex(int entryEnd) {
             int index = 0;
             while (pointer < entryEnd) {
@@ -342,7 +370,6 @@ public class FrameBufferBinary {
             }
         }
 
-
         public FrameBuffer decode(byte[] bytes) throws IOException {
             this.binary = bytes;
 
@@ -350,9 +377,9 @@ public class FrameBufferBinary {
 
             pointer = 0;
 
-            Utf8String fileType = read(new Utf8String(4));
+            Utf8String fileType = read(new Utf8String());
             if (!fileType.equals(FBB_TYPE_STRING)) {
-                IOException e = new IOException("Invalid file type, was " + fileType.getString());
+                IOException e = new IOException("Invalid file type, was \"" + fileType.getString() + "\"");
                 throw e;
             }
             
@@ -375,34 +402,7 @@ public class FrameBufferBinary {
 
             pointer += 3; // skip padding
 
-            int numHeaderEntries = 0;
-
-            // handle header table entries
-            HashMap<uint16, Boolean> headersPresent = new HashMap<uint16, Boolean>();
-            int entryStart = pointer;
-            uint16 entryType = readUint16();
-            while (!entryType.equals(HEADER_TABLE_ENTRY_LAST)) {
-                if (headersPresent.containsKey(entryType)) {
-                    throw new IOException("Duplicate header: type 0x" + entryType.hex() + " at 0x"
-                            + Integer.toHexString(pointer - 2));
-                }
-                headersPresent.put(entryType, true);
-                // LOGGER.info("- Header Table Entry: {}", entryType.hex());
-                numHeaderEntries++;
-                if (numHeaderEntries > 0xf) {
-                    throw new IOException("Too many header table entries");
-                }
-                int entryLength = readUint16().value;
-                if (entryType.equals(HEADER_TABLE_ENTRY_COLOR_INDEX_TYPE)) {
-                    // LOGGER.info("- Header contained color index table");
-                    readColorIndex(entryStart + entryLength);
-                } else {
-                    LOGGER.warn("- Unknown header table entry type: 0x{}", entryType.hex());
-                    // unknown entry type
-                }
-                pointer = entryStart + entryLength;
-                entryType = readUint16();
-            }
+            readHeaderEntries();
             // LOGGER.info("- - Reached end of header table");
 
             // LOGGER.info("- Starting decode of data section");

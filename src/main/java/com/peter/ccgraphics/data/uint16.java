@@ -11,6 +11,10 @@ public class uint16 extends BinaryDataType {
     }
 
     public uint16(int v) {
+        if (v < 0)
+            throw new IllegalArgumentException("Value of uint16 must be positive");
+        if (v > MAX)
+            throw new IllegalArgumentException("Value of uint16 must be less than or equal to 0xffff");
         value = v;
     }
 
@@ -56,6 +60,6 @@ public class uint16 extends BinaryDataType {
 
     @Override
     public String hex() {
-        return Integer.toHexString(value);
+        return toHex(value, 4);
     }
 }

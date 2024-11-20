@@ -11,6 +11,10 @@ public class uint32 extends BinaryDataType {
     }
 
     public uint32(long v) {
+        if (v < 0)
+            throw new IllegalArgumentException("Value of uint32 must be positive");
+        if (v > MAX)
+            throw new IllegalArgumentException("Value of uint32 must be less than or equal to 0xffffffff");
         value = v;
     }
 
@@ -63,6 +67,6 @@ public class uint32 extends BinaryDataType {
 
     @Override
     public String hex() {
-        return Long.toHexString(value);
+        return toHex(value, 8);
     }
 }

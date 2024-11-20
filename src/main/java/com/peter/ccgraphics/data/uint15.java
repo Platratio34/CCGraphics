@@ -2,6 +2,8 @@ package com.peter.ccgraphics.data;
 
 public class uint15 extends BinaryDataType {
 
+    public static final int MAX = 0x7fff;
+
     public int value;
 
     public uint15() {
@@ -9,6 +11,10 @@ public class uint15 extends BinaryDataType {
     }
 
     public uint15(int v) {
+        if (v < 0)
+            throw new IllegalArgumentException("Value of uint15 must be positive");
+        if (v > MAX)
+            throw new IllegalArgumentException("Value of uint15 must be less than or equal to 0x7fff");
         value = v;
     }
 
@@ -54,7 +60,7 @@ public class uint15 extends BinaryDataType {
 
     @Override
     public String hex() {
-        return Integer.toHexString(value);
+        return toHex(value, 4);
     }
 
 }

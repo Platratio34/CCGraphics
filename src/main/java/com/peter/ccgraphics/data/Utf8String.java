@@ -4,23 +4,49 @@ public class Utf8String extends BinaryDataType {
 
     protected int length;
     protected String string;
+    public boolean nullTerminated = false;
+
+    public Utf8String() {
+        length = -1;
+        string = "";
+        nullTerminated = true;
+    }
 
     public Utf8String(int length) {
         this.length = length;
         string = "";
+        if (length < 0) {
+            length = -1;
+            nullTerminated = true;
+        }
     }
 
     public Utf8String(String string) {
+        this(string, false);
+    }
+
+    public Utf8String(String string, boolean nullTerminated) {
         length = string.length();
         this.string = string;
+        this.nullTerminated = nullTerminated;
+        if (nullTerminated)
+            length++;
+        for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
+            if (c > 127) {
+                throw new IllegalArgumentException("Utf8 String can not contain non-ASCII characters");
+            }
+        }
     }
 
     @Override
     public byte[] toBytes() {
-        byte[] bytes = new byte[string.length()];
+        byte[] bytes = new byte[length];
         for (int i = 0; i < string.length(); i++) {
             bytes[i] = (byte) string.charAt(i);
         }
+        if (nullTerminated)
+            bytes[bytes.length - 1] = 0x00;
         return bytes;
     }
 
@@ -29,9 +55,10 @@ public class Utf8String extends BinaryDataType {
         string = "";
         if (length < 0) {
             byte b = bytes[start];
-            int i = 0;
+            int i = 1;
             while (b != 0x00) {
                 string += (char) b;
+                System.out.println((char)b);
                 b = bytes[start + i];
                 i++;
             }
@@ -46,7 +73,7 @@ public class Utf8String extends BinaryDataType {
     @Override
     public int getLength() {
         if (length < 0)
-            throw new RuntimeException("Length of string was not defined");
+            return 0;
         return length;
     }
 
@@ -68,7 +95,14 @@ public class Utf8String extends BinaryDataType {
     public String hex() {
         String hex = "";
         for (int i = 0; i < string.length(); i++) {
-            hex += Integer.toHexString(string.charAt(i));
+            if (i > 0)
+                hex += "_";
+            hex += toHex(string.charAt(i), 2);
+        }
+        if (nullTerminated) {
+            if (string.length() > 0)
+                hex += "_";
+            hex += "00";
         }
         return hex;
     }

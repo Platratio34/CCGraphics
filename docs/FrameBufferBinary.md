@@ -4,7 +4,7 @@
 
 | Byte(s) | Type | Description |
 |---|---|---|
-| 0 - 3 | utf8 String | File type (`"fbb "`) |
+| 0 - 3 | utf8 String | File type (`"fbb"`, null terminated) |
 | 4 - 7 | `uint32` | Pointer to start of Data section |
 | 8 - 9 | `uint16` | Width |
 | a - b | `uint16` | Height |
@@ -21,9 +21,9 @@
 | 2 | Opaque |
 | 3 | Indexed Color |
 
-### Header Table
+### Header Table Entry
 
-Header entry. Entries are repeated until an entry type of `0x0000` if found. Header table can't contain more than one entry of a given type.
+Header table entry. Entries are repeated until an entry type of `0x0000` if found. Header table can't contain more than one entry of a given type.
 
 | Byte(s) | Type | Description |
 |---|---|---|
@@ -39,7 +39,7 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 | 2 - 3 | `uint16` | Entry length in bytes (including header) |
 |---|---|---|
 |  |  | Indexed Color Data (Repeated as needed within entry length) |
-| 0 - ? | `ARGB8` **OR** `RGB8` | Color. **IF** not `opaque` type is `ARGB8` **ELSE** type is `RGB8` |
+| 0 - ? | `ARGB8` **OR** `RGB8` | Color. **IF** `opaque` flag is set, type is `RGB8` **ELSE** type is `ARGB8` |
 
 ## Data
 
@@ -53,7 +53,7 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 
 ## Encoding options
 
-### No Alpha
+### Opaque
 
 | Byte(s) | Type | Description |
 |---|---|---|
@@ -84,7 +84,7 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 |---|---|---|
 |  |  | Pixel (Repeated for every pixel) |
 | 0 - 1 | `uint16` | Number of repetitions of the pixel (not including first instance) |
-| 1 ... | `uint16`... | Number of additional repetitions of the pixel **IF** previous value was `0xffff` **ELSE** move on to pixel data |
+| 2 ... | `uint16`... | Number of additional repetitions of the pixel **IF** previous value was `0xffff` **ELSE** move on to pixel data |
 | ? - ? | Pixel | Pixel color |
 
 ---
@@ -95,7 +95,7 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 
 | Byte(s) | Type | Description |
 |---|---|---|
-| 0 - 3 | utf8 String | File type (`"fbs "`) |
+| 0 - 3 | utf8 String | File type (`"fbs"`, null terminated) |
 | 4 - 7 | `uint32` | Pointer to start of Data section |
 | 8 - 9 | `uint16` | Width |
 | a - b | `uint16` | Height |
@@ -125,10 +125,50 @@ Header entry. Entries are repeated until an entry type of `0x0000` if found. Hea
 | 7 | `uint8` | Frame Type |
 | 8 - `FrameLength` | Pixel ... | Pixel data |
 
-### Change Only
+### Frame Types
+
+| Type | Name | Description |
+|---|---|---|
+| `0x00` | Default | Normal frame. If in change only mode, will provide change from previous frame |
+| `0x01` | Keyframe | Only applicable in change only mode. Defines a complete frame. **DOES NOT INCLUDE SKIPPED PIXELS** |
+| `0x80` | Option | Redefines encoding options for the remaining frames. |
+| `0xff` | EndFrame | Ends an indicant stream of frames (See [Frame Stream](#frame-stream) for more information) |
+
+Decoders should ignore the frame number and repetitions of any non-image frame (frames with a type of `0x80` or greater).
+
+### Change Only Mode
 
 | Byte(s) | Type | Description |
 |---|---|---|
 | 0 | `uint8` | Number of pixels to skip |
 | 1 ... | `uint8`... | Number of additional pixels to skip **IF** previous byte was `0xff` **ELSE** move on to pixel data |
 | ? - ? | Pixel | Pixel |
+
+### Option Frame
+
+| Byte(s) | Type | Description |
+|---|---|---|
+|  |  | Frame (Repeated for every fame) |
+| 0 - 3 | `uint32` | Frame Length (including header)
+| 4 - 5 | `uint16` | Frame Number (`0xffff`) |
+| 6 | `uint8` | Unused |
+| 7 | `uint8` | Frame Type (`0x10`) |
+| 8 | ByteFlags | Header encoding flags (See [FBB Header](#header-flags) and [FBS Header](#header-flags-1) for specifics) |
+| 10 ... | HeaderTableEntry ... | Header Table Entries. Last entry will have a type of `0x0000` (See [Header Table Entry](#header-table-entry) for more information) |
+
+
+### End Frame
+
+| Byte(s) | Type | Description |
+|---|---|---|
+|  |  | Frame (Repeated for every fame) |
+| 0 - 3 | `uint32` | Frame Length (including header)
+| 4 - 5 | `uint16` | Frame Number (`0xffff`) |
+| 6 | `uint8` | Unused |
+| 7 | `uint8` | Frame Type (`0xff`) |
+
+## Frame Stream
+
+If the number of frames is `0xffff`, it is considered to have infinite frames **UNTIL** a frame of type `EndFrame` if found.
+
+Stream chunks **MUST NOT** split frames or header information. Splits may only be between frames.
