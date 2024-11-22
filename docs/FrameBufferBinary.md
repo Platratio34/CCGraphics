@@ -20,6 +20,9 @@
 | 1 | Run-Length-Encoding 16b |
 | 2 | Opaque |
 | 3 | Indexed Color |
+| 7 | Indexed Color 7/15b mode |
+
+**IF** both the 8b & 16b run length encoding flags are set, RLE is done in 7/15b mode
 
 ### Header Table Entry
 
@@ -40,6 +43,14 @@ Header table entry. Entries are repeated until an entry type of `0x0000` if foun
 |---|---|---|
 |  |  | Indexed Color Data (Repeated as needed within entry length) |
 | 0 - ? | `ARGB8` **OR** `RGB8` | Color. **IF** `opaque` flag is set, type is `RGB8` **ELSE** type is `ARGB8` |
+
+## Special Data Types
+
+### 7/15b unsigned integer: `uint7/15`
+
+**IF** the first (highest) bit is set, it is read as a `uint15` starting after the flag bit.
+
+**ELSE** it is read as a `uint7` starting after the flag bit.
 
 ## Data
 
@@ -67,6 +78,13 @@ Header table entry. Entries are repeated until an entry type of `0x0000` if foun
 |  |  | Pixel (Repeated for every pixel) |
 | 0 | `uint8` | Color index |
 
+### Indexed 7/15b
+
+| Byte(s) | Type | Description |
+|---|---|---|
+|  |  | Pixel (Repeated for every pixel) |
+| 0 | `uint7/15` | Color index |
+
 ---
 
 ### Run-Length-Encoding 8b
@@ -85,6 +103,17 @@ Header table entry. Entries are repeated until an entry type of `0x0000` if foun
 |  |  | Pixel (Repeated for every pixel) |
 | 0 - 1 | `uint16` | Number of repetitions of the pixel (not including first instance) |
 | 2 ... | `uint16`... | Number of additional repetitions of the pixel **IF** previous value was `0xffff` **ELSE** move on to pixel data |
+| ? - ? | Pixel | Pixel color |
+
+### Run-Length-Encoding 15b
+
+Active **IF** RLE8 & RLE15 flags are both set
+
+| Byte(s) | Type | Description |
+|---|---|---|
+|  |  | Pixel (Repeated for every pixel) |
+| 0 - 1 | `uint7/15` | Number of repetitions of the pixel (not including first instance) |
+| 2 ... | `uint7/15`... | Number of additional repetitions of the pixel **IF** previous value was `0x7fff` **ELSE** move on to pixel data |
 | ? - ? | Pixel | Pixel color |
 
 ---
@@ -114,7 +143,7 @@ Header table entry. Entries are repeated until an entry type of `0x0000` if foun
 
 | Byte(s) | Type | Description |
 |---|---|---|
-| 0 - 1 | uint16 | Number of frames defined |
+| 0 - 1 | `uint16` | Number of frames defined |
 | 2 - 3 | `null` | Padding |
 | 4 - ?? | Frame ... | Frames |
 |---|---|---|
@@ -172,3 +201,5 @@ Decoders should ignore the frame number and repetitions of any non-image frame (
 If the number of frames is `0xffff`, it is considered to have infinite frames **UNTIL** a frame of type `EndFrame` if found.
 
 Stream chunks **MUST NOT** split frames or header information. Splits may only be between frames.
+
+`frameNumber` & `framesDefined` are un-used for streams.

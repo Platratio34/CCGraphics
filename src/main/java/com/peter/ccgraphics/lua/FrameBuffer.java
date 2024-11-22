@@ -546,7 +546,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
         // buf.writeInt(height);
         // encodePixels(buf);
         FrameBufferBinary.Encoder encoder = new FrameBufferBinary.Encoder(this);
-        encoder.setRle8(true);
+        encoder.tryRLE();
         encoder.setOpaque(true);
         encoder.tryIndexed();
         buf.writeBytes(encoder.encode());

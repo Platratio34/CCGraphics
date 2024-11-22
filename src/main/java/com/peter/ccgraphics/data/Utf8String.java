@@ -58,7 +58,6 @@ public class Utf8String extends BinaryDataType {
             int i = 1;
             while (b != 0x00) {
                 string += (char) b;
-                System.out.println((char)b);
                 b = bytes[start + i];
                 i++;
             }

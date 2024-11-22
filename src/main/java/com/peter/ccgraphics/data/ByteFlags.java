@@ -65,7 +65,7 @@ public class ByteFlags extends BinaryDataType {
         for (int i = 0; i < 8; i++) {
             if (!flags[i])
                 continue;
-            if (i > 0)
+            if (str.length() > 0)
                 str += ", ";
             if (flagNames != null) {
                 str += flagNames[i];

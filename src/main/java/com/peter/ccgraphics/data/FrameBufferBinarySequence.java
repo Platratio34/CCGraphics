@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.http.MethodNotSupportedException;
 
 import com.peter.ccgraphics.lua.ArrayFrameBuffer;
 import com.peter.ccgraphics.lua.FrameBuffer;
@@ -52,28 +53,18 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
         }
 
         @Override
+        protected void writeHeaderFlags(ByteFlags flags) {
+            flags.flags[4] = changeOnly;
+            super.writeHeaderFlags(flags);
+        }
+
+        @Override
         public byte[] encode() {
             binary.clear();
 
-            write(FBB_TYPE_STRING);
+            writeHeader(FBB_TYPE_STRING);
 
-            write(uint32.encode(0)); // leaving space for pointer to data section
-
-            write(uint16.encode(frameBuffer.getWidth()));
-            write(uint16.encode(frameBuffer.getHeight()));
-
-            ByteFlags headerFlags = new ByteFlags();
-            headerFlags.flags[0] = rle8;
-            headerFlags.flags[1] = rle16;
-            headerFlags.flags[2] = opaque;
-            headerFlags.flags[3] = indexed;
-
-            headerFlags.flags[4] = changeOnly;
-            write(headerFlags);
-
-            write(new byte[1]); // padding
-
-            write(uint16.encode(frameBuffers.length));
+            write(uint16.encode(frameBuffers.length), pointer()-2); // have to back-step to write it in the normal padding
 
             // Start of header tables
             if (indexed) {
@@ -133,23 +124,11 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
                         if (color == frameBuffers[fN - 1].getColorIndexed(pI)) {
                             // this pixel is the same as the last frame so we should skip it
 
-                            if (pI > 0 && skippedPixels == 0 && (rle8 || rle16)) { // Special case for first skipped pixel to write RLE if enabled
+                            if (pI > 0 && skippedPixels == 0 && rle) { // Special case for first skipped pixel to write RLE if enabled
                                 if (length < 0) // Special case for single pixel run before un-changed
                                     length = 0;
 
-                                if (rle8) {
-                                    while (length >= uint8.MAX) {
-                                        write(uint8.encode(uint8.MAX));
-                                        length -= uint8.MAX;
-                                    }
-                                    write(uint8.encode(length));
-                                } else if (rle16) {
-                                    while (length >= uint16.MAX) {
-                                        write(uint16.encode(uint16.MAX));
-                                        length -= uint16.MAX;
-                                    }
-                                    write(uint16.encode(length));
-                                }
+                                writeRLE(length);
 
                                 writePixel(lastPixel);
 
@@ -162,27 +141,15 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
                         }
                     }
 
-                    if (rle8 || rle16) {
+                    if (rle) {
 
                         boolean write = lastPixel != color;
-                        // write = write || (rle8 && (length == 0xff));
-                        // write = write || (rle16 && (length == 0xffff));
 
                         if (write) {
                             if (fN > 0)
                                 writeSkipped(skippedPixels);
 
-                            if (rle8) {
-                                while (length >= 0xff) {
-                                    write(uint8.encode(0xff));
-                                }
-                                write(uint8.encode(length));
-                            } else if (rle16) {
-                                while (length >= 0xffff) {
-                                    write(uint16.encode(0xffff));
-                                }
-                                write(uint16.encode(length));
-                            }
+                            writeRLE(length);
 
                             writePixel(lastPixel);
 
@@ -231,23 +198,8 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
                     pixelIndex += v;
                 }
 
-                if (rle8 || rle16) {
-                    int pixelRepetitions = 0;
-                    if (rle8) {
-                        int v = readUint8().value;
-                        while (v == uint8.MAX) {
-                            pixelRepetitions += v;
-                            v = readUint8().value;
-                        }
-                        pixelRepetitions += v;
-                    } else if (rle16) {
-                        int v = readUint16().value;
-                        while (v == uint16.MAX) {
-                            pixelRepetitions += v;
-                            v = readUint16().value;
-                        }
-                        pixelRepetitions += v;
-                    }
+                if (rle) {
+                    int pixelRepetitions = readRLE();
                     int color = readPixel();
                     for (int i = 0; i <= pixelRepetitions; i++) {
                         frameBuffer.setColorIndexed(pixelIndex, color);
@@ -260,30 +212,19 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
         }
 
         @Override
+        protected void updateFlags(ByteFlags flags) {
+            changeOnly = flags.flags[4];
+        }
+
+        @Override
         public FrameBuffer decode(byte[] bytes) throws IOException {
             this.binary = bytes;
 
             pointer = 0;
 
-            Utf8String fileType = read(new Utf8String());
-            if (!fileType.equals(FBS_TYPE_STRING)) {
-                throw new IOException("Invalid file type, was \"" + fileType.getString() + "\"");
-            }
+            readHeader(FBS_TYPE_STRING);
 
-            int dataPointer = (int) readUint32().value;
-
-            int width = readUint16().value;
-            int height = readUint16().value;
-
-            ByteFlags headerFlags = read(new ByteFlags());
-            rle8 = headerFlags.flags[0];
-            rle16 = headerFlags.flags[1];
-            opaque = headerFlags.flags[2];
-            indexed = headerFlags.flags[3];
-
-            changeOnly = headerFlags.flags[4];
-
-            pointer += 1; // skip padding
+            pointer -= 2; // back-step into normal padding for number of frames
 
             int numFrames = readUint16().value;
             frameBuffers = new FrameBuffer[numFrames];
@@ -306,14 +247,7 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
 
                 if (frameType.equals(FRAME_TYPE_OPTION)) {
 
-                    headerFlags = read(new ByteFlags());
-
-                    rle8 = headerFlags.flags[0];
-                    rle16 = headerFlags.flags[1];
-                    opaque = headerFlags.flags[2];
-                    indexed = headerFlags.flags[3];
-
-                    changeOnly = headerFlags.flags[4];
+                    updateFlags(read(new ByteFlags()));
 
                     readHeaderEntries();
 
@@ -375,25 +309,9 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
             ArrayList<FrameBuffer> frames = new ArrayList<FrameBuffer>();
 
             if (!decodedHeader) {
-                Utf8String fileType = read(new Utf8String());
-                if (!fileType.equals(FBS_TYPE_STRING)) {
-                    throw new IOException("Invalid type, was \"" + fileType.getString() + "\"");
-                }
+                readHeader(FBS_TYPE_STRING);
 
-                int dataPointer = (int) readUint32().value;
-
-                width = readUint16().value;
-                height = readUint16().value;
-
-                ByteFlags headerFlags = read(new ByteFlags());
-                rle8 = headerFlags.flags[0];
-                rle16 = headerFlags.flags[1];
-                opaque = headerFlags.flags[2];
-                indexed = headerFlags.flags[3];
-
-                changeOnly = headerFlags.flags[4];
-
-                pointer += 1; // skip padding
+                pointer -= 1; // back-step into padding for number of frames
 
                 int numFrames = readUint16().value;
                 if (numFrames != 0xffff) {
@@ -420,14 +338,7 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
                     closed = true;
                 } else if (frameType.equals(FRAME_TYPE_OPTION)) {
 
-                    ByteFlags headerFlags = read(new ByteFlags());
-
-                    rle8 = headerFlags.flags[0];
-                    rle16 = headerFlags.flags[1];
-                    opaque = headerFlags.flags[2];
-                    indexed = headerFlags.flags[3];
-
-                    changeOnly = headerFlags.flags[4];
+                    updateFlags(read(new ByteFlags()));
 
                     readHeaderEntries();
 
@@ -467,6 +378,12 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
         
         public boolean closed() {
             return closed;
+        }
+
+        @Override
+        public FrameBuffer decode(byte[] bytes) throws IOException {
+            throw new UnsupportedOperationException(
+                    "Stream Decoded does not support `decode`. See `decodeChunk` instead");
         }
     }
 }
