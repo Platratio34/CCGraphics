@@ -65,11 +65,19 @@ public class ScreenTexture implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        if(RenderSystem.isOnRenderThread())
+        if (RenderSystem.isOnRenderThread())
             dispose();
         else
             RenderSystem.recordRenderCall(() -> {
                 dispose();
             });
+    }
+    
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

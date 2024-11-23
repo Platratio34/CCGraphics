@@ -8,10 +8,14 @@ import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.peter.ccgraphics.blocks.CCRegistry;
+import com.peter.ccgraphics.computer.GraphicsComputerBlock;
+import com.peter.ccgraphics.computer.GraphicsComputerBlockEntity;
 import com.peter.ccgraphics.font.FontLoader;
 import com.peter.ccgraphics.lua.GraphicsAPI;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlock;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlockEntity;
+import com.peter.ccgraphics.networking.ComputerFramePacket;
 import com.peter.ccgraphics.networking.FrambufferPacket;
 
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -35,11 +39,19 @@ public class CCGraphics implements ModInitializer {
         GraphicsMonitorBlock.register();
         GraphicsMonitorBlockEntity.register();
 
+        GraphicsComputerBlock.init();
+        GraphicsComputerBlockEntity.init();
+
         ComputerCraftAPI.registerAPIFactory(GraphicsAPI::create);
 
         FrambufferPacket.register();
+        ComputerFramePacket.register();
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new FontLoader());
+
+        CCRegistry.init();
+
+        ItemGroups.init();
 
     }
     

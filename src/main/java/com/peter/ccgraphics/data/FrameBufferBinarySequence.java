@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.http.MethodNotSupportedException;
 
 import com.peter.ccgraphics.lua.ArrayFrameBuffer;
 import com.peter.ccgraphics.lua.FrameBuffer;
