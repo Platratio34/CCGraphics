@@ -66,7 +66,7 @@ public class CCRegistry {
         return new CCRegistryEntry<Block>(Registries.BLOCK, id);
     }
 
-    public static CCRegistryEntry<BlockEntityType<? extends BlockEntity>> entryOfBlockEntityType(Identifier id) {
-        return new CCRegistryEntry<BlockEntityType<? extends BlockEntity>>(Registries.BLOCK_ENTITY_TYPE, id);
+    public static CCRegistryEntry<BlockEntityType<?>> entryOfBlockEntityType(Identifier id) {
+        return new CCRegistryEntry<BlockEntityType<?>>(Registries.BLOCK_ENTITY_TYPE, id);
     }
 }
