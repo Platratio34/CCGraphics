@@ -8,6 +8,7 @@ import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.ComponentMap;
+import dan200.computercraft.shared.util.ComponentMap.Builder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -31,6 +32,8 @@ public class GraphicsComputerBlockEntity extends ComputerBlockEntity {
     public static final int SCREEN_WIDTH = 51 * 6;
     public static final int SCREEN_HEIGHT = 21 * 9;
 
+    protected ServerGraphicsComputer computer;
+
     public static void init() {
         GraphicsComputerMenu.init();
     }
@@ -42,13 +45,19 @@ public class GraphicsComputerBlockEntity extends ComputerBlockEntity {
 
     @Override
     protected ServerComputer createComputer(int id) {
-        return new ServerGraphicsComputer((ServerWorld) this.getWorld(), this.getPos(), id, this.label,
-                this.getFamily(), SCREEN_WIDTH, SCREEN_HEIGHT, ComponentMap.empty());
+        Builder map = ComponentMap.builder();
+        GraphicsComputerComponent graphicsComponent = new GraphicsComputerComponent(SCREEN_WIDTH, SCREEN_HEIGHT);
+        map.add(GraphicsComputerComponent.GRAPHICS_COMPONENT, graphicsComponent);
+        computer = new ServerGraphicsComputer((ServerWorld) this.getWorld(), this.getPos(), id, this.label,
+                this.getFamily(), SCREEN_WIDTH, SCREEN_HEIGHT, map.build(), graphicsComponent);
+        graphicsComponent.computer = computer;
+        return computer;
     }
     
     @Override
     @Nullable
     public ScreenHandler createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-        return new GraphicsComputerMenu(GraphicsComputerMenu.TYPE, id, inventory, this::isUsableByPlayer, (ServerGraphicsComputer)this.createServerComputer());
+        return new GraphicsComputerMenu(GraphicsComputerMenu.TYPE, id, inventory, this::isUsableByPlayer,
+                (ServerGraphicsComputer) this.createServerComputer());
     }
 }

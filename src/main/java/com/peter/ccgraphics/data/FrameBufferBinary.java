@@ -421,9 +421,9 @@ public class FrameBufferBinary {
             int dataLength = pointer() - dataStart;
             write(uint32.encode(dataLength), dataStart); // write the data section length
 
-            LOGGER.info("Done encoding frame buffer: Data section was {} bytes", dataLength);
-            float compressionRatio = ((float) pointer()) / ((float) frameBuffer.getLength());
-            LOGGER.info("Compression Ratio: {} bytes per pixel", compressionRatio);
+            // LOGGER.info("Done encoding frame buffer: Data section was {} bytes", dataLength);
+            // float compressionRatio = ((float) pointer()) / ((float) frameBuffer.getLength());
+            // LOGGER.info("Compression Ratio: {} bytes per pixel", compressionRatio);
 
             return ArrayUtils.toPrimitive(binary.toArray(new Byte[0]));
         }

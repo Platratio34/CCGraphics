@@ -111,7 +111,7 @@ public class GraphicsTerminal extends Terminal {
 
         Palette palette = terminal.getPalette();
 
-        int cursorColor = ColorHelper.convert(palette.getRenderColours(terminal.getTextColour()));
+        int cursorColor = convertColor(terminal.getTextColour(), palette);
 
         for (int row = 0; row < height; row++) {
             TextBuffer bColors = terminal.getBackgroundColourLine(row);
@@ -199,44 +199,65 @@ public class GraphicsTerminal extends Terminal {
         int cInt = 0;
         switch (color) {
             case '0':
-                cInt = 0x0; break;
+                cInt = 0x0;
+                break;
             case '1':
-                cInt = 0x1; break;
+                cInt = 0x1;
+                break;
             case '2':
-                cInt = 0x2; break;
+                cInt = 0x2;
+                break;
             case '3':
-                cInt = 0x3; break;
+                cInt = 0x3;
+                break;
             case '4':
-                cInt = 0x4; break;
+                cInt = 0x4;
+                break;
             case '5':
-                cInt = 0x5; break;
+                cInt = 0x5;
+                break;
             case '6':
-                cInt = 0x6; break;
+                cInt = 0x6;
+                break;
             case '7':
-                cInt = 0x7; break;
+                cInt = 0x7;
+                break;
             case '8':
-                cInt = 0x8; break;
+                cInt = 0x8;
+                break;
             case '9':
-                cInt = 0x9; break;
+                cInt = 0x9;
+                break;
             case 'a':
-                cInt = 0xa; break;
+                cInt = 0xa;
+                break;
             case 'b':
-                cInt = 0xb; break;
+                cInt = 0xb;
+                break;
             case 'c':
-                cInt = 0xc; break;
+                cInt = 0xc;
+                break;
             case 'd':
-                cInt = 0xd; break;
+                cInt = 0xd;
+                break;
             case 'e':
-                cInt = 0xe; break;
+                cInt = 0xe;
+                break;
             case 'f':
-                cInt = 0xf; break;
-        
+                cInt = 0xf;
+                break;
+
             default:
                 CCGraphics.LOGGER.error("Unknown color: {}", color);
                 break;
         }
+
+        return ColorHelper.convert(palette.getRenderColours(15 - cInt));
+    }
+
+    protected static int convertColor(int color, Palette palette) {
         
-        return ColorHelper.convert( palette.getRenderColours(15-cInt) );
+        return ColorHelper.convert( palette.getRenderColours(15-color) );
     }
 
     @Override

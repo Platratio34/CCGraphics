@@ -67,7 +67,7 @@ function FrameBuffer.drawLine(x1, y1, x2, y2, color) end
 ---@param xOff? number *Optional.* X position on `buffer2` to start drawing from. Defaults to `0`
 ---@param yOff? number *Optional.* Y position on `buffer2` to start drawing from. Defaults to `0`
 ---@param w? number *Optional.* Width of `buffer2` to draw from `xOff`. Defaults to `buffer2.getWidth() - xOff`
----@param h? number *Optional.* Heighht of `buffer2` to draw from `xOff`. Defaults to `buffer2.getHeight() - yOff`
+---@param h? number *Optional.* Height of `buffer2` to draw from `xOff`. Defaults to `buffer2.getHeight() - yOff`
 ---@see FrameBuffer.getTable To convert a FrameBuffer to a table
 ---@see GraphicsAPI.tableToFrameBuffer To create a FrameBuffer from a table
 function FrameBuffer.drawBuffer(x, y, buffer2, xOff, yOff, w, h) end
@@ -83,7 +83,7 @@ function FrameBuffer.drawBuffer(x, y, buffer2, xOff, yOff, w, h) end
 ---@param xOff? number *Optional.* X position on `buffer2` to start drawing from. Defaults to `0`
 ---@param yOff? number *Optional.* Y position on `buffer2` to start drawing from. Defaults to `0`
 ---@param w? number *Optional.* Width of `buffer2` to draw from `xOff`. Defaults to `buffer2.getWidth() - xOff`
----@param h? number *Optional.* Heighht of `buffer2` to draw from `xOff`. Defaults to `buffer2.getHeight() - yOff`
+---@param h? number *Optional.* Height of `buffer2` to draw from `xOff`. Defaults to `buffer2.getHeight() - yOff`
 ---@see FrameBuffer.getTable To convert a FrameBuffer to a table
 ---@see GraphicsAPI.tableToFrameBuffer To create a FrameBuffer from a table
 function FrameBuffer.drawBufferMasked(x, y, buffer2, xOff, yOff, w, h) end
@@ -110,12 +110,92 @@ function FrameBuffer.getTable() end
 ---@return boolean inFrame If the position was inside the frame
 function FrameBuffer.inFrame(x, y) end
 
+---@class GraphicsNativeAPI Native Graphics api. Loadable with `require('graphics_native')`
+local GraphicsNativeAPI = {}
+
+--- Make a new FrameBuffer of the provided size
+---@param width integer Width of the new frame buffer
+---@param height integer Height of the new frame buffer
+---@return FrameBuffer frameBuffer
+function GraphicsNativeAPI.FrameBuffer(width, height) end
+
+--- Convert a table to a FrameBuffer.
+--- <br/>
+--- The table must contain numeric values for `width`, `height`, and a value for each pixel, starting index at `0` in row column format.
+---@param tbl table
+---@return FrameBuffer frameBuffer
+---@see FrameBuffer.getTable To convert a frame buffer to a table
+function GraphicsNativeAPI.tableToFrameBuffer(tbl) end
+
+--- Packs Red, Green, & Blue into an ARGB8 integer for use with FrameBuffers. Sets Alpha to `0xff`.
+--- <br/><br/>
+--- <b>Throws:</b> If any competent was out of range `0x00` - `0xff`
+---@param r integer Red component ( 0 - 255 )
+---@param g integer Green component ( 0 - 255 )
+---@param b integer Blue component ( 0 - 255 )
+---@return integer color RGBA8 color
+---@see GraphicsAPI.packRGB To pack color into an ARGB8 integer
+---@see GraphicsAPI.unpackRGBA To unpack and ARGB8 integer
+function GraphicsNativeAPI.packRGB(r, g, b) end
+
+--- Packs Red, Green, Blue & Alpha into an ARGB8 integer for use with FrameBuffers.
+--- <br/><br/>
+--- <b>Throws:</b> If any competent was out of range `0x00` - `0xff`
+---@param r integer Red component ( 0 - 255 )
+---@param g integer Green component ( 0 - 255 )
+---@param b integer Blue component ( 0 - 255 )
+---@param a integer Alpha component ( 0 - 255 )
+---@return integer color RGBA8 color
+---@see GraphicsAPI.packRGB To pack color into an ARGB8 integer
+---@see GraphicsAPI.unpackRGBA To unpack and ARGB8 integer
+function GraphicsNativeAPI.packRGBA(r, g, b, a) end
+
+--- Unpacks Red, Green, Blue, and Alpha from an ARGB8 integer.
+---@param color integer ARGB8 color to unpack
+---@return integer r Red component ( 0 - 255 )
+---@return integer g Green component ( 0 - 255 )
+---@return integer b Blue component ( 0 - 255 )
+---@return integer a Alpha component ( 0 - 255 )
+---@see GraphicsAPI.packRGB To pack color into an ARGB8 integer
+---@see GraphicsAPI.packRGBA To pack color into an ARGB8 integer
+function GraphicsNativeAPI.unpackRGBA(color) end
+
+--- Get a new text renderer for the specified font.
+--- <br>
+--- Current fonts:
+--- - `mono` in a size of `7`, `9`, and `11` pixels
+--- - `departure_mono` in a size of `8` pixels
+--- <br><br>
+--- <b>Throws:</b> If the requested font doesn't exist
+---@param name string Font name
+---@param size integer Font height in pixels
+---@return FontRenderer renderer Text renderer for the font
+function GraphicsNativeAPI.getTextRenderer(name, size) end
+
+--- Load an image as a FrameBuffer.
+--- <br><br>
+--- <b>Throws:</b> If the image was invalid
+---@param image integer[] PNG or JPEG as byte array
+---@return FrameBuffer image
+function GraphicsNativeAPI.loadImage(image) end
+
+--- Load an image as a FrameBuffer.
+--- <br>
+--- Works with byte array string of PNG or JPEG images, such as from [`ReadHandle.readAll()`](https://tweaked.cc/module/fs.html#ty:ReadHandle:readAll).
+--- <br><br>
+--- <b>Throws:</b> If the image was invalid
+---@param image string PNG or JPEG as byte array string
+---@return FrameBuffer image
+function GraphicsNativeAPI.loadImageString(image) end
+
 ---@class GraphicsAPI Graphics api. Loadable with `require('graphics')`
 local GraphicsAPI = {}
 
 --- Make a new FrameBuffer of the provided size
+---@param width integer Width of the new frame buffer
+---@param height integer Height of the new frame buffer
 ---@return FrameBuffer frameBuffer
-function GraphicsAPI.FrameBuffer() end
+function GraphicsAPI.FrameBuffer(width, height) end
 
 --- Convert a table to a FrameBuffer.
 --- <br/>
@@ -182,9 +262,16 @@ function GraphicsAPI.loadImage(image) end
 --- Works with byte array string of PNG or JPEG images, such as from [`ReadHandle.readAll()`](https://tweaked.cc/module/fs.html#ty:ReadHandle:readAll).
 --- <br><br>
 --- <b>Throws:</b> If the image was invalid
----@param image integer[] PNG or JPEG as byte array string
+---@param image string PNG or JPEG as byte array string
 ---@return FrameBuffer image
 function GraphicsAPI.loadImageString(image) end
+
+--- Load an image file as a FrameBuffer.
+--- <br/><br/>
+--- <b>Throws:</b> If the image was invalid
+---@param filename string Path to image file
+---@return FrameBuffer image
+function GraphicsAPI.loadImageFile(filename) end
 
 ---@class FontRenderer
 local FontRenderer = {}
@@ -195,7 +282,7 @@ local FontRenderer = {}
 ---@return FrameBuffer buffer Frame buffer of rasterized text
 ---@see GraphicsAPI.packRGB To pack color into an ARGB8 integer
 ---@see GraphicsAPI.packRGBA To pack color into an ARGB8 integer
----@see FontRenderer.getTextSize To pre-calulate the size of the rasterized text
+---@see FontRenderer.getTextSize To pre-calculate the size of the rasterized text
 function FontRenderer.rasterize(text, color) end
 
 --- Get the size of text if it were rasterized
@@ -239,7 +326,7 @@ function GraphicsMonitorPeripheral.getHeight() end
 
 --- Put the monitor into terminal mode.
 --- <br>
---- When in terminal mode, the frame buffer can't be set directly, but termnial functions are avalible.
+--- When in terminal mode, the frame buffer can't be set directly, but terminal functions are available.
 function GraphicsMonitorPeripheral.makeTerm() end
 
 --- Put the monitor into graphics mode.
@@ -256,3 +343,37 @@ function GraphicsMonitorPeripheral.makeGraphics() end
 --- <b>Throws:</b> If the provided size is not allowed
 ---@param size integer The pixel height of the text when monitor is in terminal mode.
 function GraphicsMonitorPeripheral.setTermTextSize(size) end
+
+---@class ScreenAPI
+local ScreenAPI = {}
+
+--- Set the current frame buffer for the screen
+--- <br><br>
+--- <b>Throws:</b> If the frame buffer was not the size of the screen
+---@param frame FrameBuffer Frame buffer to set
+---@see ScreenAPI.getFrameBuffer to get a frame buffer the size of the screen
+---@see ScreenAPI.getWidth
+---@see ScreenAPI.getHeight
+function ScreenAPI.setFrame(frame) end
+
+--- Put the screen in graphics mode (ie. setting the frame buffer directly)
+--- <br/>
+---@see ScreenAPI.setTerminalMode to put the screen in terminal mode
+function ScreenAPI.setGraphicsMode() end
+
+--- Put the screen in graphics mode (ie. setting the frame buffer directly)
+--- <br/>
+---@see ScreenAPI.setGraphicsMode to put the screen in terminal mode
+function ScreenAPI.setTerminalMode() end
+
+--- Gets the width of the screen in pixels
+---@return integer width
+function ScreenAPI.getWidth() end
+
+--- Gets the height of the screen in pixels
+---@return integer height
+function ScreenAPI.getHeight() end
+
+--- Get a new frame buffer the size of this screen
+---@return FrameBuffer frameBuffer
+function ScreenAPI.getFrameBuffer() end

@@ -1,10 +1,10 @@
-# `graphics` API
+# `graphics_native` API
 
 ```lua
-local graphics = require('graphics') ---@type GraphicsAPI
+local graphics = require('graphics_native') ---@type GraphicsNativeAPI
 ```
 
-Graphics API. Wraps the `graphics_native` API for ease of use.
+Native Graphics API
 
 ## Methods
 
@@ -18,7 +18,6 @@ Graphics API. Wraps the `graphics_native` API for ease of use.
 | `getTextRenderer(name,size)` | `TextRenderer` | Get a new text renderer for the specified font |
 | `loadImage(image)` | `FrameBuffer` | Load an image to a frame buffer |
 | `loadImageString(image)` | `FrameBuffer` | Load an image to a frame buffer |
-| `loadImageFile(filename)` | `FrameBuffer` | Load an image file to a frame buffer |
 
 ## Detail
 
@@ -53,7 +52,7 @@ Example table:
 }
 ```
 
-#### Parameters
+### Parameters
 - `tbl: table` - Table representing the frame buffer
 
 #### Returns
@@ -170,21 +169,6 @@ Works with byte array string of PNG or JPEG images, such as from [`ReadHandle.re
 
 #### Parameters
 - `image: string` - PNG or JPEG as byte array string
-
-#### Returns
-- [`FrameBuffer`](FrameBuffer.md) - Image loaded to a frame buffer
-
-#### Throws
-- If the image was invalid
-
----
-
-### `loadImageFile(image: filename): FrameBuffer`
-
-Load an image file as a FrameBuffer.
-
-#### Parameters
-- `image: filename` - Path to image file
 
 #### Returns
 - [`FrameBuffer`](FrameBuffer.md) - Image loaded to a frame buffer

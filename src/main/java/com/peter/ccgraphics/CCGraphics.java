@@ -12,7 +12,8 @@ import com.peter.ccgraphics.blocks.CCRegistry;
 import com.peter.ccgraphics.computer.GraphicsComputerBlock;
 import com.peter.ccgraphics.computer.GraphicsComputerBlockEntity;
 import com.peter.ccgraphics.font.FontLoader;
-import com.peter.ccgraphics.lua.GraphicsAPI;
+import com.peter.ccgraphics.lua.ScreenAPI;
+import com.peter.ccgraphics.lua.GraphicsNativeAPI;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlock;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlockEntity;
 import com.peter.ccgraphics.networking.ComputerFramePacket;
@@ -42,7 +43,8 @@ public class CCGraphics implements ModInitializer {
         GraphicsComputerBlock.init();
         GraphicsComputerBlockEntity.init();
 
-        ComputerCraftAPI.registerAPIFactory(GraphicsAPI::create);
+        ComputerCraftAPI.registerAPIFactory(GraphicsNativeAPI::create);
+        ComputerCraftAPI.registerAPIFactory(ScreenAPI::create);
 
         FrambufferPacket.register();
         ComputerFramePacket.register();

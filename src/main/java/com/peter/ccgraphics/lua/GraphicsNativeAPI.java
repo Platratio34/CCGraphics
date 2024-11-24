@@ -19,12 +19,12 @@ import dan200.computercraft.api.lua.MethodResult;
 /**
  * LUA API for handling various graphics classes
  */
-public class GraphicsAPI implements ILuaAPI {
+public class GraphicsNativeAPI implements ILuaAPI {
 
-
+    @SuppressWarnings("unused")
     private IComputerSystem computer;
     
-    private GraphicsAPI(IComputerSystem computer) {
+    private GraphicsNativeAPI(IComputerSystem computer) {
             this.computer = computer;
     }
 
@@ -36,12 +36,12 @@ public class GraphicsAPI implements ILuaAPI {
     @Override
     @Nullable
     public String getModuleName() {
-        return "graphics";
+        return "graphics_native";
     }
 
     @Nullable
     public static ILuaAPI create(IComputerSystem computer) {
-        return new GraphicsAPI(computer);
+        return new GraphicsNativeAPI(computer);
     }
 
     @Override
