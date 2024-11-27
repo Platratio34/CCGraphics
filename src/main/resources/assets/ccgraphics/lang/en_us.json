@@ -1,3 +1,4 @@
 {
-    "block.ccgraphics.graphics_monitor": "Graphics Monitor"
+    "block.ccgraphics.graphics_monitor": "Graphics Monitor",
+    "block.ccgraphics.graphics_computer": "Graphics Computer"
 }

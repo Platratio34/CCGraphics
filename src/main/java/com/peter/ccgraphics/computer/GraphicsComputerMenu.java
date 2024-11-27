@@ -15,6 +15,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 public class GraphicsComputerMenu extends ComputerMenuWithoutInventory {
@@ -39,7 +40,7 @@ public class GraphicsComputerMenu extends ComputerMenuWithoutInventory {
     public GraphicsComputerMenu(ScreenHandlerType<? extends AbstractComputerMenu> type, int id, PlayerInventory player,
             Predicate<PlayerEntity> canUse, ServerGraphicsComputer computer) {
         super(type, id, player, canUse, computer);
-        computer.markTerminalChanged();
+        computer.addListener((ServerPlayerEntity) player.player);
     }
 
     @Override
@@ -57,7 +58,7 @@ public class GraphicsComputerMenu extends ComputerMenuWithoutInventory {
 
     public void updateFrame(FrameBuffer frame) {
         if (frame == null) {
-            throw new UnsupportedOperationException("Cannot update frame on the server");
+            throw new IllegalArgumentException("Frame must be non-null");
         } else {
             this.frame = frame;
         }

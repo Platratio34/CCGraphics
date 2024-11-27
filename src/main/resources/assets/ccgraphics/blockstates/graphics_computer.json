@@ -11,6 +11,6 @@
       "facing=south,state=on": {"model": "computercraft:block/computer_advanced_on", "y": 180},
       "facing=west,state=blinking": {"model": "computercraft:block/computer_advanced_blinking", "y": 270},
       "facing=west,state=off": {"model": "computercraft:block/computer_advanced_off", "y": 270},
-      "facing=west,state=on": {"model": "computercraft:block/computer_advanced_on", "y": 270}
+      "facing=west,state=on": {"model": "comtputercraft:block/computer_advanced_on", "y": 270}
     }
   }
