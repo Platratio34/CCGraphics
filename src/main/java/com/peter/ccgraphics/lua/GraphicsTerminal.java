@@ -22,7 +22,7 @@ public class GraphicsTerminal extends Terminal {
     protected int charHeight;
 
     public GraphicsTerminal(int pixelWidth, int pixelHeight) {
-        super((pixelWidth - 2) / getCharWidth(7), (pixelHeight - 2) / getCharHeight(7), true);
+        super((pixelWidth - 2) / getFont(7).hSpacing, (pixelHeight - 2) / getFont(7).vSpacing, true);
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
         getFont();
@@ -32,16 +32,9 @@ public class GraphicsTerminal extends Terminal {
         return FontLoader.getFont("mono", size);
     }
 
-    private static int getCharWidth(int size) {
-        return getFont(size).charWidth + 1;
-    }
-    private static int getCharHeight(int size) {
-        return getFont(size).charHeight + 2;
-    }
-
     private LuaFont getFont() {
         if (font == null) {
-            font = FontLoader.getFont("mono", size);
+            font = getFont(size);
         }
         charHeight = font.vSpacing;
         charWidth = font.hSpacing;
@@ -152,47 +145,7 @@ public class GraphicsTerminal extends Terminal {
     }
 
     private int convertColor(char color) {
-        int cInt = 0;
-        switch (color) {
-            case '0':
-                cInt = 0x0; break;
-            case '1':
-                cInt = 0x1; break;
-            case '2':
-                cInt = 0x2; break;
-            case '3':
-                cInt = 0x3; break;
-            case '4':
-                cInt = 0x4; break;
-            case '5':
-                cInt = 0x5; break;
-            case '6':
-                cInt = 0x6; break;
-            case '7':
-                cInt = 0x7; break;
-            case '8':
-                cInt = 0x8; break;
-            case '9':
-                cInt = 0x9; break;
-            case 'a':
-                cInt = 0xa; break;
-            case 'b':
-                cInt = 0xb; break;
-            case 'c':
-                cInt = 0xc; break;
-            case 'd':
-                cInt = 0xd; break;
-            case 'e':
-                cInt = 0xe; break;
-            case 'f':
-                cInt = 0xf; break;
-        
-            default:
-                CCGraphics.LOGGER.error("Unknown color: {}", color);
-                break;
-        }
-        
-        return ColorHelper.convert( palette.getRenderColours(15-cInt) );
+        return convertColor(color, palette);
     }
 
     protected static int convertColor(char color, Palette palette) {
@@ -261,9 +214,9 @@ public class GraphicsTerminal extends Terminal {
     }
 
     @Override
-    public synchronized void resize(int width, int height) {
-        this.pixelWidth = width;
-        this.pixelHeight = height;
+    public synchronized void resize(int pixelWidth, int pixelHeight) {
+        this.pixelWidth = pixelWidth;
+        this.pixelHeight = pixelHeight;
         super.resize((pixelWidth - 2) / charWidth, (pixelHeight - 2) / charHeight);
     }
 

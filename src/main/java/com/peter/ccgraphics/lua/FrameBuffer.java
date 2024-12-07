@@ -181,7 +181,8 @@ public abstract class FrameBuffer extends CustomLuaObject {
     public void drawBoxFilled(int x, int y, int w, int h, int color) {
         assertInFrame(x, y);
         if (x + w > width || y + h > height)
-            throw new ArrayIndexOutOfBoundsException("(w, h) must be between (0, 0) & (width-x, height-y) inclusive, was ("+w+","+h+")");
+            throw new ArrayIndexOutOfBoundsException(
+                    "(w, h) must be between (0, 0) & (width-x, height-y) inclusive, was (" + w + "," + h + "); x,y=("+x+","+y+") ("+(width-x)+","+(height-y)+")");
 
         if (w == 0 || h == 0)
             return;
