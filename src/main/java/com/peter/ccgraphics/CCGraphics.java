@@ -18,6 +18,7 @@ import com.peter.ccgraphics.monitor.GraphicsMonitorBlock;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlockEntity;
 import com.peter.ccgraphics.networking.ComputerFramePacket;
 import com.peter.ccgraphics.networking.FrambufferPacket;
+import com.peter.ccgraphics.pocket.PocketGraphicsComputerItem;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 
@@ -42,6 +43,8 @@ public class CCGraphics implements ModInitializer {
 
         GraphicsComputerBlock.init();
         GraphicsComputerBlockEntity.init();
+
+        PocketGraphicsComputerItem.init();
 
         ComputerCraftAPI.registerAPIFactory(GraphicsNativeAPI::create);
         ComputerCraftAPI.registerAPIFactory(ScreenAPI::create);

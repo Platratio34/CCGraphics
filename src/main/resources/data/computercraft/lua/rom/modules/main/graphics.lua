@@ -1,5 +1,6 @@
 local native = require("graphics_native") ---@type GraphicsNativeAPI
 
+---@diagnostic disable-next-line: missing-fields
 local GraphicsAPI = {} ---@type GraphicsAPI
 --- Make a new FrameBuffer of the provided size
 ---@param width integer Width of the new frame buffer

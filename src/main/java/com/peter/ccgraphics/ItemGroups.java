@@ -2,6 +2,7 @@ package com.peter.ccgraphics;
 
 import com.peter.ccgraphics.computer.GraphicsComputerBlock;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlock;
+import com.peter.ccgraphics.pocket.PocketGraphicsComputerItem;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.ItemGroup;
@@ -19,6 +20,7 @@ public class ItemGroups {
                     .entries((ctx, entries) -> {
                         entries.add(GraphicsComputerBlock.ITEM);
                         entries.add(GraphicsMonitorBlock.ITEM);
+                        entries.add(PocketGraphicsComputerItem.ITEM);
                     })
                     .build());
 
