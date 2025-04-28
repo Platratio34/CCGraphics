@@ -1,6 +1,7 @@
 package com.peter.ccgraphics.pocket;
 
 import com.peter.ccgraphics.CCGraphics;
+
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.core.PocketBrain;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
@@ -28,7 +29,6 @@ public class PocketGraphicsComputerItem extends PocketComputerItem {
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int compartmentSlot, boolean selected) {
         super.inventoryTick(stack, world, entity, compartmentSlot, selected);
-
     }
 
     public void setBrain(PocketBrain brain) {
