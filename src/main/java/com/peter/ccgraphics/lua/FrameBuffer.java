@@ -1,5 +1,6 @@
 package com.peter.ccgraphics.lua;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -25,6 +26,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
 
     protected static final String LUA_TYPE_NAME = "frame_buffer_java";
 
+    @Override
     public String getLuaTypeName() {
         return LUA_TYPE_NAME;
     }
@@ -345,8 +347,8 @@ public abstract class FrameBuffer extends CustomLuaObject {
         try {
             Object arg2 = arguments.get(2);
             FrameBuffer buffer2;
-            if (arg2 instanceof FrameBuffer) {
-                buffer2 = (FrameBuffer) arg2;
+            if (arg2 instanceof FrameBuffer frameBuffer) {
+                buffer2 = frameBuffer;
             } else {
                 buffer2 = fromTableLUA(arguments.getTable(2));
             }
@@ -442,8 +444,8 @@ public abstract class FrameBuffer extends CustomLuaObject {
         try {
             Object arg2 = arguments.get(2);
             FrameBuffer buffer2;
-            if (arg2 instanceof FrameBuffer) {
-                buffer2 = (FrameBuffer) arg2;
+            if (arg2 instanceof FrameBuffer frameBuffer) {
+                buffer2 = frameBuffer;
             } else {
                 buffer2 = fromTableLUA(arguments.getTable(2));
             }
@@ -574,7 +576,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
             int endOfFrame = (buf.readerIndex() + (decoder.usedBytes()));
             buf.readerIndex(endOfFrame);
             return frame;
-        } catch (Exception e) {
+        } catch (IOException e) {
             CCGraphics.LOGGER.error("Unable to decode frame buffer", e);
             return null;
         }

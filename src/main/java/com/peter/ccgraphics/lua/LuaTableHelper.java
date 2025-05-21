@@ -35,9 +35,9 @@ public class LuaTableHelper {
         if (!map.containsKey(key))
             return false;
         Object o = map.get(key);
-        if (o instanceof String) {
+        if (o instanceof String str) {
             try {
-                Double.parseDouble((String) o);
+                Double.parseDouble(str);
             } catch (NumberFormatException e) {
                 return false;
             }
@@ -63,14 +63,14 @@ public class LuaTableHelper {
             return (int) o;
         if (o instanceof Double)
             return (int) (double) o;
-        if (o instanceof String) {
+        if (o instanceof String str) {
             try {
-                return Integer.parseInt((String) o);
+                return Integer.parseInt(str);
             } catch (NumberFormatException e) {
 
             }
             try {
-                return (int) Double.parseDouble((String) o);
+                return (int) Double.parseDouble(str);
             } catch (NumberFormatException e) {
 
             }
@@ -95,14 +95,14 @@ public class LuaTableHelper {
             return (int) o;
         if (o instanceof Double)
             return (int) (double) o;
-        if (o instanceof String) {
+        if (o instanceof String str) {
             try {
-                return Integer.parseInt((String) o);
+                return Integer.parseInt(str);
             } catch (NumberFormatException e) {
 
             }
             try {
-                return (int) Double.parseDouble((String) o);
+                return (int) Double.parseDouble(str);
             } catch (NumberFormatException e) {
 
             }

@@ -19,7 +19,7 @@ public class FontLoader implements SimpleSynchronousResourceReloadListener {
     public static final Identifier RESOURCE_ID = CCGraphics.id("fonts");
     public static final String FOLDER_NAME = "fonts";
 
-    public static final HashMap<String, LuaFont> fonts = new HashMap<String, LuaFont>();
+    public static final HashMap<String, LuaFont> fonts = new HashMap<>();
 
     @Override
     public Identifier getFabricId() {
@@ -52,7 +52,6 @@ public class FontLoader implements SimpleSynchronousResourceReloadListener {
             } catch (Exception e) {
                 CCGraphics.LOGGER.error("Error loading font: {}", e.getMessage());
                 CCGraphics.LOGGER.error("", e);
-                continue;
             }
         }
     }

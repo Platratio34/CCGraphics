@@ -1,9 +1,9 @@
 package com.peter.ccgraphics.lua;
 
-import io.netty.buffer.ByteBuf;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import io.netty.buffer.ByteBuf;
 
 /**
  * Array backed FrameBuffer.
@@ -14,7 +14,7 @@ public class ArrayFrameBuffer extends FrameBuffer {
     /**
      * Pixels stored as ARGB 8-bit each
      */
-    private int[] buffer;
+    private final int[] buffer;
 
     /**
      * Create a new Frame buffer
@@ -69,9 +69,7 @@ public class ArrayFrameBuffer extends FrameBuffer {
     @Override
     public FrameBuffer copy() {
         ArrayFrameBuffer frame = new ArrayFrameBuffer(width, height);
-        for (int i = 0; i < buffer.length; i++) {
-            frame.buffer[i] = buffer[i];
-        }
+        System.arraycopy(buffer, 0, frame.buffer, 0, buffer.length);
         return frame;
     }
 
@@ -89,7 +87,7 @@ public class ArrayFrameBuffer extends FrameBuffer {
 
     @Override
     public final Map<?, ?> getTable() {
-        HashMap<Object, Integer> table = new HashMap<Object, Integer>();
+        HashMap<Object, Integer> table = new HashMap<>();
         table.put("width", width);
         table.put("height", height);
         for (int i = 0; i < buffer.length; i++) {
