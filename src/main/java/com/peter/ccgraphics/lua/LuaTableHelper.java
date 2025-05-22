@@ -37,7 +37,7 @@ public class LuaTableHelper {
         Object o = map.get(key);
         if (o instanceof String str) {
             try {
-                Double.parseDouble(str);
+                Double.valueOf(str);
             } catch (NumberFormatException e) {
                 return false;
             }

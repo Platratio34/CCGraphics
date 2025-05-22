@@ -27,7 +27,7 @@ public class GraphicsComputerBlock extends ComputerBlock<GraphicsComputerBlockEn
             new ComputerItem(BLOCK, new Item.Settings()));
 
     private static RegistryEntry<BlockEntityType<GraphicsComputerBlockEntity>> getEntry() {
-        return new CCRegistryEntryType<GraphicsComputerBlockEntity>(ID);
+        return new CCRegistryEntryType<>(ID);
     }
 
     public static void init() {}

@@ -1,12 +1,11 @@
 package com.peter.ccgraphics.lua;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 import dan200.computercraft.api.lua.LuaException;
 import io.netty.buffer.ByteBuf;
-
-import java.util.HashMap;
 
 /**
  * Map backed FrameBuffer.
@@ -27,7 +26,7 @@ public class MapFrameBuffer extends FrameBuffer {
      */
     protected MapFrameBuffer(int w, int h) {
         super(w, h);
-        map = new HashMap<Object, Object>();
+        map = new HashMap<>();
     }
 
     /**
@@ -138,7 +137,7 @@ public class MapFrameBuffer extends FrameBuffer {
 
     @Override
     public FrameBuffer copy() {
-        Map<Object, Object> newMap = new HashMap<Object, Object>();
+        Map<Object, Object> newMap = new HashMap<>();
         for (double i = 0; i < width * height; i++) {
             if (map.containsKey(i))
                 newMap.put(i, map.get(i));
@@ -162,7 +161,7 @@ public class MapFrameBuffer extends FrameBuffer {
 
     @Override
     public Map<?, ?> getTable() {
-        Map<Object, Object> newMap = new HashMap<Object, Object>();
+        Map<Object, Object> newMap = new HashMap<>();
         for (double i = 0; i < width * height; i++) {
             if (map.containsKey(i))
                 newMap.put(i, map.get(i));

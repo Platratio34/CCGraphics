@@ -23,19 +23,19 @@ public abstract class CobaltLuaMachineMixin {
     private void toValue(@Nullable Object object, @Nullable IdentityHashMap<Object, LuaValue> values,
             CallbackInfoReturnable<LuaValue> info) {
         
-        if (object instanceof CustomLuaObject) {
+        if (object instanceof CustomLuaObject obj) {
             LuaTable table = invokeWrapLuaObject(object);
             if (table == null) {
                 table = new LuaTable();
             }
-            table.rawset("___obj", (LuaValue) object);
+            table.rawset("___obj", obj);
 
             info.setReturnValue(table);
             info.getReturnValue();
-        } else if (object instanceof LuaValue) {
+        } else if (object instanceof LuaValue val) {
             // values.put(object, (LuaValue)object);
             // LuaTable
-            info.setReturnValue((LuaValue) object);
+            info.setReturnValue(val);
             info.getReturnValue();
         }
     }

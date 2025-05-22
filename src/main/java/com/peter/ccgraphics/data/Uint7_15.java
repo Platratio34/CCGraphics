@@ -49,10 +49,15 @@ public class Uint7_15 extends BinaryDataType {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Uint7_15) {
-            return value == ((Uint7_15) obj).value;
-        } else if (obj instanceof Integer) {
-            return value == (int) obj;
+        switch (obj) {
+            case Uint7_15 uint7_15 -> {
+                return value == uint7_15.value;
+            }
+            case Integer integer -> {
+                return value == integer;
+            }
+            default -> {
+            }
         }
         return false;
     }

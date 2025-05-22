@@ -12,10 +12,10 @@ import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.BlockEntityType.Builder;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
-import net.minecraft.block.entity.BlockEntityType.Builder;
 
 public class CCRegistry {
 
@@ -42,13 +42,13 @@ public class CCRegistry {
     }
     
     public static void init() {
-        ;
+        
     }
 
     public static <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> ofBlock(
             RegistryEntry<? extends Block> block, BlockEntityType.BlockEntityFactory<T> factory) {
         return BLOCK_ENTITY_REGISTRY.register(block.id().getPath(), () -> {
-            return Builder.create(factory, new Block[] { (Block) block.get() }).build((Type) null);
+            return Builder.create(factory, new Block[] { (Block) block.get() }).build((Type<T>) null);
         });
     }
 
@@ -63,10 +63,10 @@ public class CCRegistry {
     }
 
     public static CCRegistryEntry<Block> entryOfBlock(Identifier id) {
-        return new CCRegistryEntry<Block>(Registries.BLOCK, id);
+        return new CCRegistryEntry<>(Registries.BLOCK, id);
     }
 
     public static CCRegistryEntry<BlockEntityType<?>> entryOfBlockEntityType(Identifier id) {
-        return new CCRegistryEntry<BlockEntityType<?>>(Registries.BLOCK_ENTITY_TYPE, id);
+        return new CCRegistryEntry<>(Registries.BLOCK_ENTITY_TYPE, id);
     }
 }

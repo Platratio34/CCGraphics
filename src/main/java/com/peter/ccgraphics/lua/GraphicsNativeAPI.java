@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
@@ -22,7 +23,7 @@ import dan200.computercraft.api.lua.MethodResult;
 public class GraphicsNativeAPI implements ILuaAPI {
 
     @SuppressWarnings("unused")
-    private IComputerSystem computer;
+    private final IComputerSystem computer;
     
     private GraphicsNativeAPI(IComputerSystem computer) {
             this.computer = computer;
@@ -160,20 +161,19 @@ public class GraphicsNativeAPI implements ILuaAPI {
      * @throws LuaException If the image is invalid
      */
     public FrameBuffer loadImage(byte[] arr) throws LuaException {
-        try {
+        try (InputStream imgStream = new ByteArrayInputStream(arr)) {
             
-            InputStream imgStream = new ByteArrayInputStream(arr);
+            FrameBuffer frame;
             BufferedImage img = ImageIO.read(imgStream);
             if (img == null) {
                 throw new LuaException("Invalid image");
             }
-            FrameBuffer frame = new ArrayFrameBuffer(img.getWidth(), img.getHeight());
+            frame = new ArrayFrameBuffer(img.getWidth(), img.getHeight());
             for (int x = 0; x < img.getWidth(); x++) {
                 for (int y = 0; y < img.getHeight(); y++) {
                     frame.setPixel(x, y, img.getRGB(x, y));
                 }
             }
-            imgStream.close();
             return frame;
         } catch (IOException e) {
             throw new LuaException(e.getMessage());

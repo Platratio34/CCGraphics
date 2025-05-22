@@ -1,6 +1,5 @@
 package com.peter.ccgraphics.computer;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -28,7 +27,7 @@ public class ServerGraphicsComputer extends ServerComputer {
 
     protected AtomicBoolean termFrameBufferInvalid = new AtomicBoolean(true);
 
-    private ServerWorld world;
+    private final ServerWorld world;
 
     protected NetworkedTerminal terminal;
 
@@ -41,7 +40,7 @@ public class ServerGraphicsComputer extends ServerComputer {
     protected static final int CURSOR_BLINK_MAX = 16;
     protected static final int CURSOR_BLINK_SWITCH = CURSOR_BLINK_MAX / 2;
     
-    protected LinkedList<ServerPlayerEntity> addedListeners = new LinkedList<ServerPlayerEntity>();
+    protected LinkedList<ServerPlayerEntity> addedListeners = new LinkedList<>();
 
     public ServerGraphicsComputer(ServerWorld level, BlockPos position, int computerID, @Nullable String label,
             ComputerFamily family, int terminalWidth, int terminalHeight, ComponentMap baseComponents,
@@ -56,10 +55,7 @@ public class ServerGraphicsComputer extends ServerComputer {
 
     protected boolean hasListeners() {
         MinecraftServer server = world.getServer();
-        Iterator<ServerPlayerEntity> players = server.getPlayerManager().getPlayerList().iterator();
-
-        while (players.hasNext()) {
-            ServerPlayerEntity player = players.next();
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             if (player.currentScreenHandler instanceof ComputerMenu
                     && ((ComputerMenu) player.currentScreenHandler).getComputer() == this) {
                 return true;
@@ -101,10 +97,7 @@ public class ServerGraphicsComputer extends ServerComputer {
         }
 
         MinecraftServer server = world.getServer();
-        Iterator<ServerPlayerEntity> players = server.getPlayerManager().getPlayerList().iterator();
-
-        while (players.hasNext()) {
-            ServerPlayerEntity player = players.next();
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             if (player.currentScreenHandler instanceof ComputerMenu
                     && ((ComputerMenu) player.currentScreenHandler).getComputer() == this) {
                 ServerPlayNetworking.send(player,
@@ -128,7 +121,7 @@ public class ServerGraphicsComputer extends ServerComputer {
         super.tickServer();
 
         if (!updateFrameBuffer()) {
-            if (addedListeners.size() > 0) {
+            if (!addedListeners.isEmpty()) {
                 for (ServerPlayerEntity player : addedListeners) {
                     ServerPlayNetworking.send(player,
                             new ComputerFramePacket(lastFrame, player.currentScreenHandler.syncId));

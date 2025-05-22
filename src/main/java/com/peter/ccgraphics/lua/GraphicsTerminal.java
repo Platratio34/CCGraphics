@@ -151,58 +151,24 @@ public class GraphicsTerminal extends Terminal {
     protected static int convertColor(char color, Palette palette) {
         int cInt = 0;
         switch (color) {
-            case '0':
-                cInt = 0x0;
-                break;
-            case '1':
-                cInt = 0x1;
-                break;
-            case '2':
-                cInt = 0x2;
-                break;
-            case '3':
-                cInt = 0x3;
-                break;
-            case '4':
-                cInt = 0x4;
-                break;
-            case '5':
-                cInt = 0x5;
-                break;
-            case '6':
-                cInt = 0x6;
-                break;
-            case '7':
-                cInt = 0x7;
-                break;
-            case '8':
-                cInt = 0x8;
-                break;
-            case '9':
-                cInt = 0x9;
-                break;
-            case 'a':
-                cInt = 0xa;
-                break;
-            case 'b':
-                cInt = 0xb;
-                break;
-            case 'c':
-                cInt = 0xc;
-                break;
-            case 'd':
-                cInt = 0xd;
-                break;
-            case 'e':
-                cInt = 0xe;
-                break;
-            case 'f':
-                cInt = 0xf;
-                break;
+            case '0' -> cInt = 0x0;
+            case '1' -> cInt = 0x1;
+            case '2' -> cInt = 0x2;
+            case '3' -> cInt = 0x3;
+            case '4' -> cInt = 0x4;
+            case '5' -> cInt = 0x5;
+            case '6' -> cInt = 0x6;
+            case '7' -> cInt = 0x7;
+            case '8' -> cInt = 0x8;
+            case '9' -> cInt = 0x9;
+            case 'a' -> cInt = 0xa;
+            case 'b' -> cInt = 0xb;
+            case 'c' -> cInt = 0xc;
+            case 'd' -> cInt = 0xd;
+            case 'e' -> cInt = 0xe;
+            case 'f' -> cInt = 0xf;
 
-            default:
-                CCGraphics.LOGGER.error("Unknown color: {}", color);
-                break;
+            default -> CCGraphics.LOGGER.error("Unknown color: {}", color);
         }
 
         return ColorHelper.convert(palette.getRenderColours(15 - cInt));

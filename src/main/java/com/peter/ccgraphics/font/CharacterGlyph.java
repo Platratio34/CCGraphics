@@ -93,7 +93,7 @@ public class CharacterGlyph extends FrameBuffer {
 
     @Override
     public Map<?, ?> getTable() {
-        HashMap<Object, Object> map = new HashMap<Object, Object>();
+        HashMap<Object, Object> map = new HashMap<>();
         map.put("width", width);
         map.put("height", height);
         for (int x = 0; x < width; x++) {

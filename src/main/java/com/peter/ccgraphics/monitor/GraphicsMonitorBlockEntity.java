@@ -69,7 +69,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     private ClientGraphicsMonitor clientMonitor;
     @Nullable
     private GraphicsMonitorPeripheral peripheral;
-    private final Set<IComputerAccess> computers = Collections.newSetFromMap(new ConcurrentHashMap());
+    private final Set<IComputerAccess> computers = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private boolean needsUpdate = false;
     private boolean needsValidating = false;
     boolean enqueued;

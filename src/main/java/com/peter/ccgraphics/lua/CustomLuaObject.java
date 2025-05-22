@@ -7,7 +7,7 @@ import org.squiddev.cobalt.LuaValue;
 
 public abstract class CustomLuaObject extends LuaValue {
 
-    private LuaTable luaTable = new LuaTable();
+    private final LuaTable luaTable = new LuaTable();
 
     public CustomLuaObject() {
         super(10);

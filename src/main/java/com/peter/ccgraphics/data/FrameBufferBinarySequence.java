@@ -43,9 +43,10 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
         @Override
         public boolean tryIndexed() {
             lastColorIndex = 0;
-            for (int i = 0; i < frameBuffers.length; i++) {
-                if (!tryIndexed(frameBuffers[i]))
+            for (FrameBuffer frameBuffer1 : frameBuffers) {
+                if (!tryIndexed(frameBuffer1)) {
                     return false;
+                }
             }
             indexed = true;
             return true;
@@ -172,7 +173,7 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
 
             write(uint16.encode(numFrames), numFramesPointer); // write the number of frames we actually defined
 
-            return ArrayUtils.toPrimitive(binary.toArray(new Byte[0]));
+            return ArrayUtils.toPrimitive(binary.toArray(Byte[]::new));
         }
     }
 
@@ -287,9 +288,6 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
     public class StreamDecoder extends Decoder {
 
         protected boolean decodedHeader = false;
-        
-        protected int width;
-        protected int height;
 
         protected FrameBuffer lastFrame;
 
@@ -305,7 +303,7 @@ public class FrameBufferBinarySequence extends FrameBufferBinary {
             this.binary = chunk;
             pointer = 0;
 
-            ArrayList<FrameBuffer> frames = new ArrayList<FrameBuffer>();
+            ArrayList<FrameBuffer> frames = new ArrayList<>();
 
             if (!decodedHeader) {
                 readHeader(FBS_TYPE_STRING);

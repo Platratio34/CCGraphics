@@ -26,7 +26,7 @@ public class FrameBufferBinary {
     public static class Encoder {
 
         protected final FrameBuffer frameBuffer;
-        protected final ArrayList<Byte> binary = new ArrayList<Byte>();
+        protected final ArrayList<Byte> binary = new ArrayList<>();
 
         protected boolean rle8 = false;
         protected boolean rle16 = false;
@@ -39,9 +39,9 @@ public class FrameBufferBinary {
 
         protected boolean indexed15 = false;
 
-        protected final HashMap<Integer, Integer> colorIndex = new HashMap<Integer, Integer>();
+        protected final HashMap<Integer, Integer> colorIndex = new HashMap<>();
         protected int maxColorIndex = -1;
-        protected final CountingMap<Integer> colorCount = new CountingMap<Integer>();
+        protected final CountingMap<Integer> colorCount = new CountingMap<>();
 
         public Encoder(FrameBuffer frameBuffer) {
             this.frameBuffer = frameBuffer;
@@ -425,7 +425,7 @@ public class FrameBufferBinary {
             // float compressionRatio = ((float) pointer()) / ((float) frameBuffer.getLength());
             // LOGGER.info("Compression Ratio: {} bytes per pixel", compressionRatio);
 
-            return ArrayUtils.toPrimitive(binary.toArray(new Byte[0]));
+            return ArrayUtils.toPrimitive(binary.toArray(Byte[]::new));
         }
     }
 
@@ -450,7 +450,7 @@ public class FrameBufferBinary {
 
         protected int dataPointer;
 
-        protected final HashMap<Integer, Integer> colorIndex = new HashMap<Integer, Integer>();
+        protected final HashMap<Integer, Integer> colorIndex = new HashMap<>();
 
         public Decoder() {
         };
@@ -480,7 +480,7 @@ public class FrameBufferBinary {
 
         protected int readPixel() {
             if (indexed) {
-                int index = 0;
+                int index;
                 if (indexed15) {
                     index = read(new Uint7_15()).value;
                 } else {
@@ -500,7 +500,7 @@ public class FrameBufferBinary {
         }
 
         protected void readHeaderEntries() throws IOException {
-            HashMap<uint16, Boolean> headersPresent = new HashMap<uint16, Boolean>();
+            HashMap<uint16, Boolean> headersPresent = new HashMap<>();
             int entryStart = pointer;
             uint16 entryType = readUint16();
             while (!entryType.equals(HEADER_TABLE_ENTRY_LAST)) {

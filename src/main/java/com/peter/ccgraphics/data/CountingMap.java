@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 public class CountingMap<T extends Object> {
 
-    private final HashMap<T, Integer> count = new HashMap<T, Integer>();
+    private final HashMap<T, Integer> count = new HashMap<>();
 
     public CountingMap() {
 

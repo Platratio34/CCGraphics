@@ -48,22 +48,24 @@ public class LuaFontRenderer {
         int xStart = 0;
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            if (c == ' ') {
-                xStart += font.hSpacing;
-            } else if (c == '\t') {
-                xStart += (font.hSpacing) * 4;
-            } else if (c == '\n') {
-                xStart = 0;
-                yStart += font.vSpacing;
-            } else if (c == '\r') {
-                // pass
-            } else {
-                CharacterGlyph glyph = font.getChar(c).colored(color);
-                frame.drawBufferMasked(xStart, yStart, glyph);
-                if (font.isMono)
-                    xStart += font.hSpacing;
-                else
-                    xStart += font.getWidth(c) + 1;
+            switch (c) {
+                case ' ' -> xStart += font.hSpacing;
+                case '\t' -> xStart += (font.hSpacing) * 4;
+                case '\n' -> {
+                    xStart = 0;
+                    yStart += font.vSpacing;
+                }
+                case '\r' -> {
+                    // skip
+                }
+                default -> {
+                    CharacterGlyph glyph = font.getChar(c).colored(color);
+                    frame.drawBufferMasked(xStart, yStart, glyph);
+                    if (font.isMono)
+                        xStart += font.hSpacing;
+                    else
+                        xStart += font.getWidth(c) + 1;
+                }
             }
         }
 
@@ -109,21 +111,23 @@ public class LuaFontRenderer {
         int cW = 0;
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            if (c == ' ') {
-                cW += font.hSpacing;
-            } else if (c == '\t') {
-                cW += (font.hSpacing) * 4;
-            } else if (c == '\n') {
-                w = (cW > w) ? cW : w;
-                cW = 0;
-                h += font.vSpacing;
-            } else if (c == '\r') {
-                // pass
-            } else {
-                if (font.isMono)
-                    cW += font.hSpacing;
-                else
-                    cW += font.getWidth(c) + 1;
+            switch (c) {
+                case ' ' -> cW += font.hSpacing;
+                case '\t' -> cW += (font.hSpacing) * 4;
+                case '\n' -> {
+                    w = (cW > w) ? cW : w;
+                    cW = 0;
+                    h += font.vSpacing;
+                }
+                case '\r' -> {
+                    // skip
+                }
+                default -> {
+                    if (font.isMono)
+                        cW += font.hSpacing;
+                    else
+                        cW += font.getWidth(c) + 1;
+                }
             }
         }
         w = (cW > w) ? cW : w;
