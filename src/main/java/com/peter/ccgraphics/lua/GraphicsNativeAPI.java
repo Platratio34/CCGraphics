@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
 import com.peter.ccgraphics.ColorHelper;
+import com.peter.ccgraphics.data.FrameBufferBinary.Decoder;
 
 import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPI;
@@ -208,6 +209,21 @@ public class GraphicsNativeAPI implements ILuaAPI {
             arr[i] = (byte) image.charAt(i);
         }
         return loadImage(arr);
+    }
+
+    @LuaFunction
+    public final FrameBuffer loadFBBString(String fbb) throws LuaException {
+        Decoder decoder = new Decoder();
+        byte[] arr = new byte[fbb.length()];
+        for(int i = 0; i < fbb.length(); i++) {
+            char c = fbb.charAt(i);
+            arr[i] = (byte)c;
+        }
+        try {
+            return decoder.decode(arr);
+        } catch (IOException e) {
+            throw new LuaException(e.getMessage());
+        }
     }
 
 }

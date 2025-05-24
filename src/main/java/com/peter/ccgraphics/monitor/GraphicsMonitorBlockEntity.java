@@ -1,7 +1,6 @@
 package com.peter.ccgraphics.monitor;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -94,6 +93,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
         super(BLOCK_ENTITY_TYPE, pos, state);
     }
 
+    @Override
     public void cancelRemoval() {
         super.cancelRemoval();
         this.needsValidating = true;
@@ -107,6 +107,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
 
     }
 
+    @Override
     public void markRemoved() {
         super.markRemoved();
         if (this.clientMonitor != null) {
@@ -115,6 +116,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
 
     }
 
+    @Override
     public void writeNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registries) {
         tag.putInt(NBT_X, this.xIndex);
         tag.putInt(NBT_Y, this.yIndex);
@@ -123,6 +125,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
         super.writeNbt(tag, registries);
     }
 
+    @Override
     public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
         super.readNbt(nbt, registries);
         int oldXIndex = this.xIndex;
@@ -197,8 +200,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
             return this.serverMonitor;
         } else {
             BlockEntity te = this.getWorld().getBlockEntity(this.toWorldPos(0, 0));
-            if (te instanceof GraphicsMonitorBlockEntity) {
-                GraphicsMonitorBlockEntity monitor = (GraphicsMonitorBlockEntity) te;
+            if (te instanceof GraphicsMonitorBlockEntity monitor) {
                 return this.serverMonitor = monitor.createServerMonitor();
             } else {
                 return null;
@@ -226,6 +228,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
+    @Override
     public final NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registries) {
         NbtCompound nbt = super.toInitialChunkDataNbt(registries);
         nbt.putInt("XIndex", this.xIndex);
@@ -327,8 +330,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
             World world = this.getWorld();
             if (world != null && world.canSetBlock(pos)) {
                 BlockEntity tile = world.getBlockEntity(pos);
-                if (tile instanceof GraphicsMonitorBlockEntity) {
-                    GraphicsMonitorBlockEntity monitor = (GraphicsMonitorBlockEntity) tile;
+                if (tile instanceof GraphicsMonitorBlockEntity monitor) {
                     return this.isCompatible(monitor) ? MonitorState.present(monitor) : MonitorState.MISSING;
                 } else {
                     return MonitorState.MISSING;
@@ -552,10 +554,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
             for (int y = 0; y < this.height; ++y) {
                 GraphicsMonitorBlockEntity monitor = this.getLoadedMonitor(x, y).getMonitor();
                 if (monitor != null) {
-                    Iterator<IComputerAccess> var5 = monitor.computers.iterator();
-
-                    while (var5.hasNext()) {
-                        IComputerAccess computer = var5.next();
+                    for (IComputerAccess computer : monitor.computers) {
                         fun.accept(computer);
                     }
                 }

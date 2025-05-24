@@ -1,13 +1,13 @@
 package com.peter.ccgraphics.monitor;
 
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.lua.ArrayFrameBuffer;
 import com.peter.ccgraphics.lua.FrameBuffer;
 import com.peter.ccgraphics.lua.GraphicsTerminal;
-
-import java.util.Map;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -57,8 +57,8 @@ public class GraphicsMonitorPeripheral extends TermMethods implements IPeriphera
             return false;
         try {
             FrameBuffer buffer2;
-            if (buffer instanceof FrameBuffer)
-                buffer2 = (FrameBuffer) buffer;
+            if (buffer instanceof FrameBuffer frameBuffer)
+                buffer2 = frameBuffer;
             else
                 buffer2 = FrameBuffer.fromTable((Map<?,?>)buffer);
             return monitor.setFrameBuffer(buffer2);

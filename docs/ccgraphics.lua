@@ -188,6 +188,15 @@ function GraphicsNativeAPI.loadImage(image) end
 ---@return FrameBuffer image
 function GraphicsNativeAPI.loadImageString(image) end
 
+--- Load an FBB as a FrameBuffer.
+--- <br>
+--- Works with byte array string of FBB images, such as from [`ReadHandle.readAll()`](https://tweaked.cc/module/fs.html#ty:ReadHandle:readAll).
+--- <br><br>
+--- <b>Throws:</b> If the image was invalid
+---@param image string FBB as byte array string
+---@return FrameBuffer image
+function GraphicsNativeAPI.loadFBBString(image) end
+
 ---@class GraphicsAPI Graphics api. Loadable with `require('graphics')`
 local GraphicsAPI = {}
 
@@ -272,6 +281,22 @@ function GraphicsAPI.loadImageString(image) end
 ---@param filename string Path to image file
 ---@return FrameBuffer image
 function GraphicsAPI.loadImageFile(filename) end
+
+--- Load an FBB file as a FrameBuffer.
+--- <br/>
+--- Works with byte array string of FBB image, such as from [`ReadHandle.readAll()`](https://tweaked.cc/module/fs.html#ty:ReadHandle:readAll).
+--- <br/><br/>
+--- <b>Throws:</b> If the image was invalid
+---@param fbb string FBB as byte array string
+---@return FrameBuffer image
+function GraphicsAPI.loadFBBString(fbb) end
+
+--- Load an FBB file as a FrameBuffer.
+--- <br/><br/>
+--- <b>Throws:</b> If the image was invalid
+---@param filename string Path to FBB file
+---@return FrameBuffer image
+function GraphicsAPI.loadFBBFile(filename) end
 
 ---@class FontRenderer
 local FontRenderer = {}

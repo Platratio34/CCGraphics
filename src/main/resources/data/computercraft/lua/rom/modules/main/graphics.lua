@@ -105,4 +105,27 @@ function GraphicsAPI.loadImageFile(filename)
     return native.loadImageString(image)
 end
 
+--- Load an FBB file as a FrameBuffer.
+--- <br/>
+--- Works with byte array string of FBB image, such as from [`ReadHandle.readAll()`](https://tweaked.cc/module/fs.html#ty:ReadHandle:readAll).
+--- <br/><br/>
+--- <b>Throws:</b> If the image was invalid
+---@param fbb string FBB as byte array string
+---@return FrameBuffer image
+function GraphicsAPI.loadFBBString(fbb)
+    return native.loadFBBString(fbb)
+end
+
+--- Load an FBB file as a FrameBuffer.
+--- <br/><br/>
+--- <b>Throws:</b> If the image was invalid
+---@param filename string Path to FBB file
+---@return FrameBuffer image
+function GraphicsAPI.loadFBBFile(filename)
+    local f = fs.open(filename, 'rb')
+    local image = f.readAll()
+    f.close()
+    return native.loadFBBString(image)
+end
+
 return GraphicsAPI
