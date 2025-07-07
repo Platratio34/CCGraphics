@@ -1,14 +1,14 @@
 package com.peter.ccgraphics.computer;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.peter.ccgraphics.CCGraphics;
 
 import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.util.ComponentMap;
-import dan200.computercraft.shared.util.ComponentMap.Builder;
+import dan200.computercraft.shared.computer.core.ServerComputer.Properties;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,7 +26,7 @@ public class GraphicsComputerBlockEntity extends ComputerBlockEntity {
     public static final Identifier ID = CCGraphics.id(NAME);
 
     public static final BlockEntityType<GraphicsComputerBlockEntity> ENTITY_TYPE = Registry
-            .register(Registries.BLOCK_ENTITY_TYPE, ID, BlockEntityType.Builder
+            .register(Registries.BLOCK_ENTITY_TYPE, ID, FabricBlockEntityTypeBuilder
                     .create(GraphicsComputerBlockEntity::new, GraphicsComputerBlock.BLOCK).build());
 
     public static final int SCREEN_WIDTH = 51 * 6;
@@ -45,11 +45,11 @@ public class GraphicsComputerBlockEntity extends ComputerBlockEntity {
 
     @Override
     protected ServerComputer createComputer(int id) {
-        Builder map = ComponentMap.builder();
+        // Builder map = ComponentMap.builder();
         GraphicsComputerComponent graphicsComponent = new GraphicsComputerComponent(SCREEN_WIDTH, SCREEN_HEIGHT);
-        map.add(GraphicsComputerComponent.GRAPHICS_COMPONENT, graphicsComponent);
-        computer = new ServerGraphicsComputer((ServerWorld) this.getWorld(), this.getPos(), id, this.label,
-                this.getFamily(), SCREEN_WIDTH, SCREEN_HEIGHT, map.build(), graphicsComponent);
+        Properties properties = ServerComputer.properties(id, ComputerFamily.ADVANCED);
+        properties.addComponent(GraphicsComputerComponent.GRAPHICS_COMPONENT, graphicsComponent);
+        computer = new ServerGraphicsComputer((ServerWorld) this.getWorld(), this.getPos(), SCREEN_WIDTH, SCREEN_HEIGHT, properties, graphicsComponent);
         graphicsComponent.computer = computer;
         return computer;
     }

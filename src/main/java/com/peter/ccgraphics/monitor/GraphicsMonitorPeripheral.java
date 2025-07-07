@@ -2,7 +2,7 @@ package com.peter.ccgraphics.monitor;
 
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.lua.ArrayFrameBuffer;

@@ -2,6 +2,10 @@ package com.peter.ccgraphics;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
@@ -62,5 +66,21 @@ public class CCGraphics implements ModInitializer {
     
     public static Identifier id(String id) {
         return Identifier.of(MOD_ID, id);
+    }
+
+    public static RegistryKey<Block> blockRegistryKey(String id) {
+        return RegistryKey.of(RegistryKeys.BLOCK, id(id));
+    }
+
+    public static RegistryKey<Block> blockRegistryKey(Identifier id) {
+        return RegistryKey.of(RegistryKeys.BLOCK, id);
+    }
+
+    public static RegistryKey<Item> itemRegistryKey(String id) {
+        return RegistryKey.of(RegistryKeys.ITEM, id(id));
+    }
+
+    public static RegistryKey<Item> itemRegistryKey(Identifier id) {
+        return RegistryKey.of(RegistryKeys.ITEM, id);
     }
 }

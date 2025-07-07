@@ -1,6 +1,6 @@
 package com.peter.ccgraphics.lua;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.peter.ccgraphics.computer.GraphicsComputerComponent;
 

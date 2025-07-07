@@ -1,6 +1,5 @@
 package com.peter.ccgraphics.blocks;
 
-import com.mojang.datafixers.types.Type;
 import com.mojang.serialization.Codec;
 import com.peter.ccgraphics.computer.GraphicsComputerBlock;
 import com.peter.ccgraphics.computer.GraphicsComputerBlockEntity;
@@ -8,11 +7,12 @@ import com.peter.ccgraphics.computer.GraphicsComputerBlockEntity;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistrationHelper;
 import dan200.computercraft.shared.platform.RegistryEntry;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.Factory;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.BlockEntityType.Builder;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
@@ -46,9 +46,9 @@ public class CCRegistry {
     }
 
     public static <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> ofBlock(
-            RegistryEntry<? extends Block> block, BlockEntityType.BlockEntityFactory<T> factory) {
+            RegistryEntry<? extends Block> block, Factory<T> factory) {
         return BLOCK_ENTITY_REGISTRY.register(block.id().getPath(), () -> {
-            return Builder.create(factory, new Block[] { (Block) block.get() }).build((Type<T>) null);
+            return FabricBlockEntityTypeBuilder.create(factory, new Block[] { (Block) block.get() }).build();
         });
     }
 

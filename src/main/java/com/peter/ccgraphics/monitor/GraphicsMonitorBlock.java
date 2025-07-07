@@ -2,7 +2,7 @@ package com.peter.ccgraphics.monitor;
 
 import java.util.Random;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
 import com.peter.ccgraphics.CCGraphics;
@@ -28,7 +28,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
@@ -43,16 +42,16 @@ public class GraphicsMonitorBlock extends HorizontalFacingBlock implements Block
     public static final String NAME = "graphics_monitor";
     public static final Identifier ID = CCGraphics.id(NAME);
 
-    public static final DirectionProperty ORIENTATION = DirectionProperty.of("orientation",
+    public static final EnumProperty<Direction> ORIENTATION = EnumProperty.of("orientation", Direction.class,
             new Direction[] { Direction.UP, Direction.DOWN, Direction.NORTH });
     public static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.of("state", MonitorEdgeState.class);
 
     public static final MapCodec<GraphicsMonitorBlock> CODEC = createCodec(GraphicsMonitorBlock::new);
 
     public static final GraphicsMonitorBlock BLOCK = Registry.register(Registries.BLOCK, ID,
-            new GraphicsMonitorBlock(Settings.create().solid()));
+            new GraphicsMonitorBlock(Settings.create().solid().registryKey(CCGraphics.blockRegistryKey(ID))));
     public static final BlockItem ITEM = Registry.register(Registries.ITEM, ID,
-            new BlockItem(BLOCK, new Item.Settings()));
+            new BlockItem(BLOCK, new Item.Settings().registryKey(CCGraphics.itemRegistryKey(ID))));
 
     protected GraphicsMonitorBlock(Settings settings) {
         super(settings);
@@ -91,11 +90,13 @@ public class GraphicsMonitorBlock extends HorizontalFacingBlock implements Block
                 context.getHorizontalPlayerFacing().getOpposite())).with(ORIENTATION, orientation);
     }
 
-    protected final void onStateReplaced(BlockState block, World world, BlockPos pos, BlockState replace,
-            boolean bool) {
+    // TODO was this change correct? (Changed from onStateReplaced)
+    @Override
+    protected final void onBlockAdded(BlockState block, World world, BlockPos pos, BlockState replace,
+            boolean notify) {
         if (block.getBlock() != replace.getBlock()) {
             BlockEntity tile = world.getBlockEntity(pos);
-            super.onStateReplaced(block, world, pos, replace, bool);
+            super.onBlockAdded(replace, world, pos, replace, notify);
             if (tile instanceof GraphicsMonitorBlockEntity) {
                 GraphicsMonitorBlockEntity generic = (GraphicsMonitorBlockEntity) tile;
                 generic.destroy();
@@ -125,7 +126,7 @@ public class GraphicsMonitorBlock extends HorizontalFacingBlock implements Block
                                 (float) (hit.getPos().z - (double) hit.getBlockPos().getZ()));
                     }
 
-                    return ActionResult.success(level.isClient);
+                    return ActionResult.SUCCESS_SERVER;
                 }
             }
         }

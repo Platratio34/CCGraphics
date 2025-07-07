@@ -3,7 +3,7 @@ package com.peter.ccgraphics.computer;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.peter.ccgraphics.lua.FrameBuffer;
 import com.peter.ccgraphics.lua.GraphicsTerminal;
@@ -11,9 +11,9 @@ import com.peter.ccgraphics.networking.ComputerFramePacket;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.TerminalSize;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
-import dan200.computercraft.shared.util.ComponentMap;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -42,10 +42,9 @@ public class ServerGraphicsComputer extends ServerComputer {
     
     protected LinkedList<ServerPlayerEntity> addedListeners = new LinkedList<>();
 
-    public ServerGraphicsComputer(ServerWorld level, BlockPos position, int computerID, @Nullable String label,
-            ComputerFamily family, int terminalWidth, int terminalHeight, ComponentMap baseComponents,
-            GraphicsComputerComponent graphicsComponent) {
-        super(level, position, computerID, label, family, terminalWidth / 6, terminalHeight / 9, baseComponents);
+    public ServerGraphicsComputer(ServerWorld level, BlockPos position,
+            int terminalWidth, int terminalHeight, Properties properties, GraphicsComputerComponent graphicsComponent) {
+        super(level, position, properties.terminalSize(new TerminalSize(terminalWidth / 6, terminalHeight / 9)));
         this.pixelWidth = terminalWidth;
         this.pixelHeight = terminalHeight;
         world = level;
@@ -132,17 +131,19 @@ public class ServerGraphicsComputer extends ServerComputer {
 
         cursorBlink = (cursorBlink + 1) % CURSOR_BLINK_MAX;
     }
-    
-    @Override
-    public void shutdown() {
-        graphicsComponent.graphicsMode = false;
-        super.shutdown();
-    }
 
-    @Override
-    protected void markTerminalChanged() { // This is literally just to expose the method
-        super.markTerminalChanged();
-    }
+    // TODO We just wont reset this right now?
+    // @Override
+    // public void shutdown() {
+    //     graphicsComponent.graphicsMode = false;
+    //     super.shutdown();
+    // }
+
+    // TODO Can this just be removed?
+    // @Override
+    // protected void markTerminalChanged() { // This is literally just to expose the method
+    //     super.markTerminalChanged();
+    // }
 
     public void addListener(ServerPlayerEntity player) {
         addedListeners.add(player);

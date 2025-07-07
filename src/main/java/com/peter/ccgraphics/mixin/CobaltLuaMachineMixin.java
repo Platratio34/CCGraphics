@@ -2,7 +2,7 @@ package com.peter.ccgraphics.mixin;
 
 import java.util.IdentityHashMap;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
@@ -24,10 +24,8 @@ public abstract class CobaltLuaMachineMixin {
             CallbackInfoReturnable<LuaValue> info) {
         
         if (object instanceof CustomLuaObject obj) {
-            LuaTable table = invokeWrapLuaObject(object);
-            if (table == null) {
-                table = new LuaTable();
-            }
+            LuaTable table = new LuaTable();
+            invokeWrapLuaObject(object, table);
             table.rawset("___obj", obj);
 
             info.setReturnValue(table);
@@ -56,6 +54,6 @@ public abstract class CobaltLuaMachineMixin {
         }
     }
     
-    @Invoker("wrapLuaObject")
-    public abstract LuaTable invokeWrapLuaObject(Object object);
+    @Invoker("makeLuaObject")
+    public abstract boolean invokeWrapLuaObject(Object object, LuaTable table);
 }

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import javax.imageio.ImageIO;
 
 import com.peter.ccgraphics.ColorHelper;
