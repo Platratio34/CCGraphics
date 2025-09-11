@@ -21,7 +21,8 @@ public class GraphicsTerminal extends Terminal {
     protected int charHeight;
 
     public GraphicsTerminal(int pixelWidth, int pixelHeight) {
-        super((pixelWidth - 2) / getFont(7).hSpacing, (pixelHeight - 2) / getFont(7).vSpacing, true);
+        super((pixelWidth - 4) / getFont(7).hSpacing, (pixelHeight - 4) / getFont(7).vSpacing, true);
+        CCGraphics.LOGGER.info("Creating new graphics terminal: {}x{}chars {}x{}px", width, height, pixelWidth, pixelHeight);
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
         getFont();
@@ -138,9 +139,9 @@ public class GraphicsTerminal extends Terminal {
             return;
         this.size = size;
         font = FontLoader.getFont("mono", size);
-        charHeight = font.hSpacing;
-        charWidth = font.vSpacing;
-        super.resize((pixelWidth - 2) / charWidth, (pixelHeight - 2) / charHeight);
+        charHeight = font.vSpacing;
+        charWidth = font.hSpacing;
+        resize(pixelWidth, pixelHeight);
     }
 
     private int convertColor(char color) {
@@ -182,6 +183,9 @@ public class GraphicsTerminal extends Terminal {
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
         super.resize((pixelWidth - 2) / charWidth, (pixelHeight - 2) / charHeight);
+        CCGraphics.LOGGER.info(
+                "Resizing graphics terminal: {}x{}chars {}x{}px ({}px font, {}x{}px chars);", width, height, pixelWidth,
+                pixelHeight, size, charWidth, charHeight);
     }
 
     public void checkSize(int pixelWidth, int pixelHeight) {

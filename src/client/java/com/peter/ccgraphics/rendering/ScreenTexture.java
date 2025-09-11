@@ -55,7 +55,7 @@ public class ScreenTexture implements AutoCloseable {
         if (niTexture != null)
             return;
         
-        if(nativeImage != null)
+        if(nativeImage == null)
             nativeImage = new NativeImage(width, height, false);
         niTexture = new NativeImageBackedTexture(() -> "screenTexture-" + (nextTId++), nativeImage);
         niTexture.upload();
