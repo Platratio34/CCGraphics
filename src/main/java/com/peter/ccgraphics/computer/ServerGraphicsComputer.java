@@ -3,13 +3,10 @@ package com.peter.ccgraphics.computer;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.peter.ccgraphics.lua.FrameBuffer;
 import com.peter.ccgraphics.lua.GraphicsTerminal;
 import com.peter.ccgraphics.networking.ComputerFramePacket;
 
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.TerminalSize;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
@@ -39,7 +36,7 @@ public class ServerGraphicsComputer extends ServerComputer {
     protected boolean cursorLast = false;
     protected static final int CURSOR_BLINK_MAX = 16;
     protected static final int CURSOR_BLINK_SWITCH = CURSOR_BLINK_MAX / 2;
-    
+
     protected LinkedList<ServerPlayerEntity> addedListeners = new LinkedList<>();
 
     public ServerGraphicsComputer(ServerWorld level, BlockPos position,
@@ -62,7 +59,7 @@ public class ServerGraphicsComputer extends ServerComputer {
         }
         return false;
     }
-    
+
     protected boolean updateFrameBuffer() {
         if (!hasListeners()) {
             return false;
@@ -76,14 +73,14 @@ public class ServerGraphicsComputer extends ServerComputer {
             frameBuffer = graphicsComponent.getFrameBuffer();
         } else if (graphicsComponent.isTerm()) {
             boolean cursor = (cursorBlink < CURSOR_BLINK_SWITCH) && terminal.getCursorBlink();
-            
+
             boolean termChanged = termFrameBufferInvalid.getAndSet(false);
             boolean changed = termChanged || (cursor != cursorLast);
             if (!changed) {
                 return false;
             }
 
-            if(termChanged)
+            if (termChanged)
                 getTerminalState().apply(terminal);
 
             frameBuffer = GraphicsTerminal.renderToFrame(cursor, terminal);
@@ -113,7 +110,6 @@ public class ServerGraphicsComputer extends ServerComputer {
 
         super.onTerminalChanged();
     }
-    
 
     @Override
     protected void tickServer() {

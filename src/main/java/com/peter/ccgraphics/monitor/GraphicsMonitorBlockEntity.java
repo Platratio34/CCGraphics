@@ -91,6 +91,8 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     private Box boundingBox;
     TickScheduler.Token tickToken = new TickScheduler.Token(this);
 
+    private boolean isRemoving = false;
+
     public GraphicsMonitorBlockEntity(BlockPos pos, BlockState state) {
         // super(BLOCK_ENTITY_TYPE, pos, state);
         super(BLOCK_ENTITY_TYPE, pos, state);
@@ -100,7 +102,15 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     public void cancelRemoval() {
         super.cancelRemoval();
         this.needsValidating = true;
+        isRemoving = false;
         TickScheduler.schedule(this.tickToken);
+    }
+    @Override
+    public void onBlockReplaced(BlockPos pos, BlockState oldState) {
+        super.onBlockReplaced(pos, oldState);
+        isRemoving = true;
+        if (world != null && !getWorld().isClient)
+            contractNeighbors();
     }
 
     void destroy() {
@@ -121,12 +131,11 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
 
     @Override
     protected void writeData(WriteView view) {
-        super.writeData(view);
-
         view.putInt(NBT_X, this.xIndex);
         view.putInt(NBT_Y, this.yIndex);
         view.putInt(NBT_WIDTH, this.width);
         view.putInt(NBT_HEIGHT, this.height);
+        super.writeData(view);
     }
 
     @Override
@@ -323,7 +332,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     }
 
     boolean isCompatible(GraphicsMonitorBlockEntity other) {
-        return this.getOrientation() == other.getOrientation()
+        return !(other.isRemoved() || other.isRemoving) && this.getOrientation() == other.getOrientation()
                 && this.getDirection() == other.getDirection();
     }
 
@@ -360,15 +369,15 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
         if (this.xIndex != 0 || this.yIndex != 0) {
             this.serverMonitor = null;
         } else {
-            if (this.serverMonitor == null) {
-                this.serverMonitor = new ServerGraphicsMonitor(this);
-            }
-            this.serverMonitor.markResized();
-            this.serverMonitor.rebuild();
-            if (peripheral != null)
-                peripheral.resize(serverMonitor.getPixelWidth(), serverMonitor.getPixelHeight());
-            markDirty();
-            world.updateListeners(pos, getCachedState(), getCachedState(), 0);
+            // if (this.serverMonitor == null) {
+            //     this.serverMonitor = new ServerGraphicsMonitor(this);
+            // }
+            // this.serverMonitor.markResized();
+            // this.serverMonitor.rebuild();
+            // if (peripheral != null)
+            //     peripheral.resize(serverMonitor.getPixelWidth(), serverMonitor.getPixelHeight());
+            // markDirty();
+            // world.updateListeners(pos, getCachedState(), getCachedState(), 0);
         }
 
         this.xIndex = 0;
@@ -377,12 +386,12 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
         this.height = height;
         boolean needsTerminal = false;
 
-        label61: for (int x = 0; x < width; ++x) {
+        terminalCheck: for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
                 GraphicsMonitorBlockEntity monitor = this.getLoadedMonitor(x, y).getMonitor();
                 if (monitor != null && monitor.peripheral != null) {
                     needsTerminal = true;
-                    break label61;
+                    break terminalCheck;
                 }
             }
         }

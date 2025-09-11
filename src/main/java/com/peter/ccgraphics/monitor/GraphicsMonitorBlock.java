@@ -90,21 +90,6 @@ public class GraphicsMonitorBlock extends HorizontalFacingBlock implements Block
                 context.getHorizontalPlayerFacing().getOpposite())).with(ORIENTATION, orientation);
     }
 
-    // TODO was this change correct? (Changed from onStateReplaced)
-    @Override
-    protected final void onBlockAdded(BlockState block, World world, BlockPos pos, BlockState replace,
-            boolean notify) {
-        if (block.getBlock() != replace.getBlock()) {
-            BlockEntity tile = world.getBlockEntity(pos);
-            super.onBlockAdded(replace, world, pos, replace, notify);
-            if (tile instanceof GraphicsMonitorBlockEntity) {
-                GraphicsMonitorBlockEntity generic = (GraphicsMonitorBlockEntity) tile;
-                generic.destroy();
-            }
-
-        }
-    }
-
     protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random rand) {
         BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof GraphicsMonitorBlockEntity monitor) {

@@ -56,48 +56,40 @@ public class Expander {
         int otherOffset = isPositive ? (useXAxis ? width : height) : -1;
         BlockPos otherPos = useXAxis ? pos.offset(this.right, otherOffset) : pos.offset(this.down, otherOffset);
         BlockEntity other = this.level.getBlockEntity(otherPos);
-        if (other instanceof GraphicsMonitorBlockEntity otherMonitor) {
-            if (this.origin.isCompatible(otherMonitor)) {
-                if (useXAxis) {
-                    if (otherMonitor.getYIndex() != 0 || otherMonitor.getHeight() != height) {
-                        return false;
-                    }
+        if (!(other instanceof GraphicsMonitorBlockEntity otherMonitor) || !origin.isCompatible(otherMonitor))
+            return false;
+        
+        if (useXAxis) {
+            if (otherMonitor.getYIndex() != 0 || otherMonitor.getHeight() != height) {
+                return false;
+            }
 
-                    width += otherMonitor.getWidth();
-                    if (width > Config.monitorWidth) {
-                        return false;
-                    }
-                } else {
-                    if (otherMonitor.getXIndex() != 0 || otherMonitor.getWidth() != width) {
-                        return false;
-                    }
+            width += otherMonitor.getWidth();
+            if (width > Config.monitorWidth) {
+                return false;
+            }
+        } else {
+            if (otherMonitor.getXIndex() != 0 || otherMonitor.getWidth() != width) {
+                return false;
+            }
 
-                    height += otherMonitor.getHeight();
-                    if (height > Config.monitorHeight) {
-                        return false;
-                    }
-                }
-
-                if (!isPositive) {
-                    BlockEntity otherOrigin = this.level.getBlockEntity(otherMonitor.toWorldPos(0, 0));
-                    if (!(otherOrigin instanceof GraphicsMonitorBlockEntity)) {
-                        return false;
-                    }
-
-                    GraphicsMonitorBlockEntity originMonitor = (GraphicsMonitorBlockEntity) otherOrigin;
-                    if (!this.origin.isCompatible(originMonitor)) {
-                        return false;
-                    }
-
-                    this.origin = originMonitor;
-                }
-
-                this.width = width;
-                this.height = height;
-                return true;
+            height += otherMonitor.getHeight();
+            if (height > Config.monitorHeight) {
+                return false;
             }
         }
 
-        return false;
+        if (!isPositive) {
+            BlockEntity otherOrigin = this.level.getBlockEntity(otherMonitor.toWorldPos(0, 0));
+            if (!(otherOrigin instanceof GraphicsMonitorBlockEntity originMonitor) || !originMonitor.isCompatible(otherMonitor)) {
+                return false;
+            }
+
+            this.origin = originMonitor;
+        }
+
+        this.width = width;
+        this.height = height;
+        return true;
     }
 }
