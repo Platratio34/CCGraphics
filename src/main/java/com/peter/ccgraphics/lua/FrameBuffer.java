@@ -184,7 +184,7 @@ public abstract class FrameBuffer extends CustomLuaObject {
         assertInFrame(x, y);
         if (x + w > width || y + h > height)
             throw new ArrayIndexOutOfBoundsException(
-                    "(w, h) must be between (0, 0) & (width-x, height-y) inclusive, was (" + w + "," + h + "); x,y=("+x+","+y+") ("+(width-x)+","+(height-y)+")");
+                    "(w, h) must be between (0, 0) & (width-x, height-y) inclusive, was (" + w + "," + h + "); x,y=("+x+","+y+") w,h=("+width+","+height+") ("+(width-x)+","+(height-y)+")");
 
         if (w == 0 || h == 0)
             return;

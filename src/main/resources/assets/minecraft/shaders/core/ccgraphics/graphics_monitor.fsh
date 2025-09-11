@@ -17,11 +17,11 @@ uniform int CursorBlink;
 uniform vec4 ColorModulator;
 uniform float FogStart;
 uniform float FogEnd;
-uniform vec4 FogColor;
+// uniform vec4 FogColor;
 
 uniform sampler2D Sampler0;
 
-in float vertexDistance;
+// in float vertexDistance;
 in vec2 texUv;
 
 out vec4 fragColor;
@@ -59,7 +59,9 @@ void main() {
 
     // fragColor = linear_fog(colour, vertexDistance, FogStart, FogEnd, FogColor);
     vec4 color = texture(Sampler0, texUv) * ColorModulator;
+    color = color + vec4(texUv, 0, 0);
     // color = color * 10.0;
     // color = color + vec4(texUv.xy, 0.0, 1.0);
-    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+    // fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+    fragColor = color;
 }

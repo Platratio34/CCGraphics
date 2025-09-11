@@ -22,6 +22,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState;
 import dan200.computercraft.shared.peripheral.monitor.XYPair;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.TickScheduler;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -33,6 +34,8 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -45,7 +48,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     public static final Identifier ID = CCGraphics.id(NAME);
     public static final BlockEntityType<GraphicsMonitorBlockEntity> BLOCK_ENTITY_TYPE = Registry.register(
             Registries.BLOCK_ENTITY_TYPE, ID,
-            BlockEntityType.Builder.create(GraphicsMonitorBlockEntity::new, GraphicsMonitorBlock.BLOCK).build());
+            FabricBlockEntityTypeBuilder.create(GraphicsMonitorBlockEntity::new, GraphicsMonitorBlock.BLOCK).build());
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphicsMonitorBlockEntity.class);
     public static final double RENDER_BORDER = 0.125;
@@ -117,23 +120,25 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void writeNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registries) {
-        tag.putInt(NBT_X, this.xIndex);
-        tag.putInt(NBT_Y, this.yIndex);
-        tag.putInt(NBT_WIDTH, this.width);
-        tag.putInt(NBT_HEIGHT, this.height);
-        super.writeNbt(tag, registries);
+    protected void writeData(WriteView view) {
+        super.writeData(view);
+
+        view.putInt(NBT_X, this.xIndex);
+        view.putInt(NBT_Y, this.yIndex);
+        view.putInt(NBT_WIDTH, this.width);
+        view.putInt(NBT_HEIGHT, this.height);
     }
 
     @Override
-    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-        super.readNbt(nbt, registries);
+    protected void readData(ReadView view) {
+        super.readData(view);
+
         int oldXIndex = this.xIndex;
         int oldYIndex = this.yIndex;
-        this.xIndex = nbt.getInt(NBT_X);
-        this.yIndex = nbt.getInt(NBT_Y);
-        this.width = nbt.getInt(NBT_WIDTH);
-        this.height = nbt.getInt(NBT_HEIGHT);
+        this.xIndex = view.getInt(NBT_X, 0);
+        this.yIndex = view.getInt(NBT_Y, 0);
+        this.width = view.getInt(NBT_WIDTH, 1);
+        this.height = view.getInt(NBT_HEIGHT, 1);
         if (this.world != null && this.world.isClient) {
             this.onClientLoad(oldXIndex, oldYIndex);
         }
@@ -328,7 +333,7 @@ public class GraphicsMonitorBlockEntity extends BlockEntity {
         } else {
             BlockPos pos = this.toWorldPos(x, y);
             World world = this.getWorld();
-            if (world != null && world.canSetBlock(pos)) {
+            if (world != null && world.isPosLoaded(pos)) {
                 BlockEntity tile = world.getBlockEntity(pos);
                 if (tile instanceof GraphicsMonitorBlockEntity monitor) {
                     return this.isCompatible(monitor) ? MonitorState.present(monitor) : MonitorState.MISSING;

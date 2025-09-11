@@ -88,7 +88,7 @@ public class CharacterGlyph extends FrameBuffer {
 
     @Override
     public float[] getTextureBuffer() {
-        throw new UnsupportedOperationException("CharacterGlyph does not support encoding or decoding");
+        throw new UnsupportedOperationException("CharacterGlyph does not support getting texture buffers");
     }
 
     @Override

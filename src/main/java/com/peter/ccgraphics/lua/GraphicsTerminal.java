@@ -1,7 +1,6 @@
 package com.peter.ccgraphics.lua;
 
 import com.peter.ccgraphics.CCGraphics;
-import com.peter.ccgraphics.ColorHelper;
 import com.peter.ccgraphics.font.CharacterGlyph;
 import com.peter.ccgraphics.font.FontLoader;
 import com.peter.ccgraphics.font.LuaFont;
@@ -46,7 +45,7 @@ public class GraphicsTerminal extends Terminal {
 
         LuaFont font = getFont();
 
-        int cursorColor = ColorHelper.convert(palette.getRenderColours(cursorColour));
+        int cursorColor = palette.getRenderColours(cursorColour);
 
         for (int row = 0; row < height; row++) {
             TextBuffer bColors = backgroundColour[row];
@@ -171,12 +170,11 @@ public class GraphicsTerminal extends Terminal {
             default -> CCGraphics.LOGGER.error("Unknown color: {}", color);
         }
 
-        return ColorHelper.convert(palette.getRenderColours(15 - cInt));
+        return palette.getRenderColours(15 - cInt);
     }
 
     protected static int convertColor(int color, Palette palette) {
-        
-        return ColorHelper.convert( palette.getRenderColours(15-color) );
+        return palette.getRenderColours(15-color);
     }
 
     @Override

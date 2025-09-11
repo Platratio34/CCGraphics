@@ -2,40 +2,69 @@ package com.peter.ccgraphics.rendering;
 
 import org.joml.Matrix4f;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat.DrawMode;
 import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.lua.FrameBuffer;
 import com.peter.ccgraphics.monitor.ClientGraphicsMonitor;
 import com.peter.ccgraphics.monitor.GraphicsMonitorBlockEntity;
-import com.peter.ccgraphics.rendering.shaders.MonitorShader;
 
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.render.VertexFormat.DrawMode;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 
 public class GraphicsMonitorBlockEntityRenderer implements BlockEntityRenderer<GraphicsMonitorBlockEntity> {
 
     private static final float MARGIN = 0.034375F;
+    private final BlockEntityRendererFactory.Context context;
+
+    private ScreenTexture texture;
+
+    private RenderPhase.TextureBase textureBase = new RenderPhase.TextureBase(() -> {
+        RenderSystem.setShaderTexture(0, texture.getTextureView());
+    }, () -> {
+    });
+    private static final RenderPipeline MONITOR_PIPELINE = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.TRANSFORMS_PROJECTION_FOG_SNIPPET).withLocation("pipeline/graphics_monitor")
+		.withVertexShader("core/ccgraphics/graphics_monitor")
+        .withFragmentShader("core/ccgraphics/graphics_monitor")
+		.withSampler("Sampler0")
+            .withVertexFormat(VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS)
+		.build());
+    private RenderLayer renderLayer = RenderLayer.of(
+		"monitor",
+		1536,
+		true,
+		false,
+		RenderPipelines.CUTOUT,
+		RenderLayer.MultiPhaseParameters.builder().texture(textureBase).build(true)
+	);
 
     public GraphicsMonitorBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
-        
+        this.context = context;
     }
-
+    
     @Override
     public void render(GraphicsMonitorBlockEntity monitor, float tickDelta, MatrixStack transform,
-            VertexConsumerProvider bufferSource, int lightmapCoord, int overlayLight) {
+            VertexConsumerProvider bufferSource, int lightmapCoord, int overlayLight, Vec3d cameraPos) {
+                
         ClientGraphicsMonitor clientMonitor = monitor.getOriginClientMonitor();
         if (clientMonitor == null) {
             CCGraphics.LOGGER.warn("Could not render monitor ... Missing client monitor");
@@ -47,7 +76,7 @@ public class GraphicsMonitorBlockEntityRenderer implements BlockEntityRenderer<G
         long renderFrame = FrameInfo.getRenderFrame();
         GraphicsMonitorRenderState renderState = (GraphicsMonitorRenderState) clientMonitor
                 .getRenderState(GraphicsMonitorRenderState::new);
-        ScreenTexture texture = renderState.getOrCreateBuffer(clientMonitor);
+        texture = renderState.getOrCreateBuffer(clientMonitor);
 
         if (clientMonitor.pollChanged()) {
             if (frameBuffer.getWidth() != texture.width || frameBuffer.getHeight() != texture.height) {
@@ -61,7 +90,7 @@ public class GraphicsMonitorBlockEntityRenderer implements BlockEntityRenderer<G
             BlockPos originPos = origin.getPos();
             Direction dir = origin.getDirection();
             Direction front = origin.getFront();
-            float yaw = dir.asRotation();
+            float yaw = dir.getPositiveHorizontalDegrees();
             float pitch = DirectionUtil.toPitchAngle(front);
 
             transform.push();
@@ -96,21 +125,19 @@ public class GraphicsMonitorBlockEntityRenderer implements BlockEntityRenderer<G
 
     private void renderMonitor(Matrix4f matrix, ClientGraphicsMonitor clientMonitor, ScreenTexture texture2, float xMargin,
             float yMargin) {
-        
-        MonitorShader.MONITOR_LAYER.startDrawing();
-
-        MonitorShader.INSTANCE.setTexture(texture2);
-
-        BufferBuilder buffer = Tessellator.getInstance().begin(DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_TEXTURE);
+                
+        renderLayer.startDrawing();
+        BufferBuilder buffer = Tessellator.getInstance().begin(DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
         addVertex(buffer, matrix, -xMargin, -yMargin, 0.0f, 0.0f);
         addVertex(buffer, matrix, -xMargin, texture2.height + yMargin, 0.0f, 1.0f);
-        addVertex(buffer, matrix, texture2.width + xMargin, -yMargin, 1.0f, 0.0f);
         addVertex(buffer, matrix, texture2.width + xMargin, texture2.height + yMargin, 1.0f, 1.0f);
-        MonitorShader.MONITOR_LAYER.draw(buffer.end());
+        addVertex(buffer, matrix, texture2.width + xMargin, -yMargin, 1.0f, 0.0f);
+        renderLayer.draw(buffer.end());
+        renderLayer.endDrawing();
     }
 
     private static void addVertex(VertexConsumer builder, Matrix4f matrix, float x, float y, float u, float v) {
-        builder.vertex(matrix, x, y, 0.01f).texture(u, v);
+        builder.vertex(matrix, x, y, 0.01f).texture(u, v).color(255, 255, 255, 255).light(255, 255).normal(0, 0, 1);
     }
 
     @Override

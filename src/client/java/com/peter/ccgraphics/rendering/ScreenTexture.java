@@ -1,56 +1,73 @@
 package com.peter.ccgraphics.rendering;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import com.peter.ccgraphics.CCGraphics;
 import com.peter.ccgraphics.lua.FrameBuffer;
+
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 
 public class ScreenTexture implements AutoCloseable {
 
     protected int glId = -1;
     protected int width;
     protected int height;
+    protected GpuTexture gpuTexture = null;
+
+    protected NativeImageBackedTexture niTexture;
+    protected NativeImage nativeImage;
 
     public ScreenTexture(int width, int height) {
         this.width = width;
         this.height = height;
+        nativeImage = new NativeImage(width, height, false);
     }
 
     public void bind() {
         check();
 
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, glId);
+        GlStateManager._bindTexture(glId);
     }
 
     public void setFrame(FrameBuffer frame) {
         if (frame.getWidth() != width || frame.getHeight() != height) {
             resize(frame.getWidth(), frame.getHeight());
         }
-        bind();
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, width, height, 0, GL11.GL_RGB, GL11.GL_FLOAT, frame.getTextureBuffer());
-        // frame.debugPrint();
+        check();
+        for (int x = 0; x < frame.getWidth(); x++) {
+            for (int y = 0; y < frame.getHeight(); y++) {
+                int p = frame.getPixel(x, y);
+                int r = (p & 0x00_ff_00_00) >> 16;
+                int g = (p & 0x00_00_ff_00) >> 8;
+                int b = (p & 0x00_00_00_ff);
+                nativeImage.setColor(x, y, 0xff00_0000 | (b << 16) | (g << 8) | r);
+            }
+        }
+        if(niTexture != null)
+            niTexture.upload();
     }
 
+    private static int nextTId = 0;
     private void check() {
-        if (glId > -1)
+        if (niTexture != null)
             return;
-        glId = GlStateManager._genTexture();
-        CCGraphics.LOGGER.debug("Making new texture ({},{})", width, height);
-
-        bind();
-        GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL30.GL_CLAMP_TO_EDGE);
-        GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL30.GL_CLAMP_TO_EDGE);
-        GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, width, height, 0, GL11.GL_RGB, GL11.GL_FLOAT, 0);
+        
+        if(nativeImage != null)
+            nativeImage = new NativeImage(width, height, false);
+        niTexture = new NativeImageBackedTexture(() -> "screenTexture-" + (nextTId++), nativeImage);
+        niTexture.upload();
     }
 
     public void dispose() {
-        GlStateManager._deleteTexture(glId);
-        glId = -1;
+        if (niTexture != null)
+            niTexture.close();
+        if (nativeImage != null)
+            nativeImage.close();
+        niTexture = null;
+        nativeImage = null;
     }
 
     public int getId() {
@@ -66,11 +83,11 @@ public class ScreenTexture implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (RenderSystem.isOnRenderThread())
             dispose();
         else
-            RenderSystem.recordRenderCall(() -> {
+            RenderSystem.queueFencedTask(() -> {
                 dispose();
             });
     }
@@ -81,5 +98,9 @@ public class ScreenTexture implements AutoCloseable {
 
     public int getHeight() {
         return height;
+    }
+
+    public GpuTextureView getTextureView() {
+        return niTexture.getGlTextureView();
     }
 }

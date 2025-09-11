@@ -18,7 +18,7 @@ public class PocketGraphicsComputerItem extends PocketComputerItem {
     public static final String NAME = "pocket_graphics_computer";
     public static final Identifier ID = CCGraphics.id(NAME);
 
-    public static final PocketGraphicsComputerItem ITEM = Registry.register(Registries.ITEM, ID, new PocketGraphicsComputerItem(new Settings()));
+    // public static final PocketGraphicsComputerItem ITEM = Registry.register(Registries.ITEM, ID, new PocketGraphicsComputerItem(new Settings()));
 
     public static void init() {}
 
@@ -26,10 +26,10 @@ public class PocketGraphicsComputerItem extends PocketComputerItem {
         super(settings, ComputerFamily.ADVANCED);
     }
 
-    @Override
-    public void inventoryTick(ItemStack stack, World world, Entity entity, int compartmentSlot, boolean selected) {
-        super.inventoryTick(stack, world, entity, compartmentSlot, selected);
-    }
+    // @Override
+    // public void inventoryTick(ItemStack stack, World world, Entity entity, int compartmentSlot, boolean selected) {
+    //     super.inventoryTick(stack, world, entity, compartmentSlot, selected);
+    // }
 
     public void setBrain(PocketBrain brain) {
         PocketServerComputer comp = brain.computer();
