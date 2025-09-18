@@ -112,20 +112,46 @@ public class GraphicsTerminal extends Terminal {
             TextBuffer line = terminal.getLine(row);
 
             for (int col = 0; col < width; col++) {
-                int sX = 1 + (col * charWidth);
-                int sY = 1 + (row * charHeight);
-                outFrame.drawBoxFilled(sX, sY, charWidth, charHeight, convertColor(bColors.charAt(col), palette));
+                int charX = 1 + (col * charWidth);
+                int charY = 1 + (row * charHeight);
+                int backgroundColour = convertColor(bColors.charAt(col), palette);
+                outFrame.drawBoxFilled(charX, charY, charWidth, charHeight, backgroundColour);
+                
+                int bottomY = charY + charHeight;
+                if (col == 0) {
+                    outFrame.drawBoxFilled(0, charY, 1, charHeight, backgroundColour);
+                    if (row == 0) {
+                        outFrame.setPixel(0, 0, backgroundColour);
+                    } else if (row == height - 1) {
+                        outFrame.drawBoxFilled(0, bottomY, 1, outFrame.height - bottomY, backgroundColour);
+                    }
+                } else if (col == width - 1) {
+                    int rightX = charX + charWidth;
+                    int rightW = outFrame.width - rightX;
+                    outFrame.drawBoxFilled(rightX, charY, rightW, charHeight, backgroundColour);
+                    if (row == 0) {
+                        outFrame.drawBoxFilled(rightX, 0, rightW, 1, backgroundColour);
+                    } else if (row == height - 1) {
+                        outFrame.drawBoxFilled(rightX, bottomY, rightW, outFrame.height - bottomY, backgroundColour);
+                    }
+                }
+                if (row == 0) {
+                    outFrame.drawBoxFilled(charX, 0, charWidth, 1, backgroundColour);
+                } else if (row == height - 1) {
+                    outFrame.drawBoxFilled(charX, bottomY, charWidth, outFrame.height - bottomY, backgroundColour);
+                }
 
                 int tColor = convertColor(tColors.charAt(col), palette);
                 char c = line.charAt(col);
 
                 if (c != ' ') {
                     CharacterGlyph glyph = font.getChar(c).colored(tColor);
-                    outFrame.drawBufferMasked(sX, sY, glyph);
+                    outFrame.drawBufferMasked(charX, charY, glyph);
                 }
-                if (cursorVisible && terminal.getCursorBlink() && terminal.getCursorX() == col && terminal.getCursorY() == row) {
+                if (cursorVisible && terminal.getCursorBlink() && terminal.getCursorX() == col
+                        && terminal.getCursorY() == row) {
                     for (int x = 0; x < font.charWidth; x++) {
-                        outFrame.setPixel(sX + x, sY + font.charHeight, cursorColor);
+                        outFrame.setPixel(charX + x, charY + font.charHeight, cursorColor);
                     }
                 }
             }
