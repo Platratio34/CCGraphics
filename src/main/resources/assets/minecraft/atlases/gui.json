@@ -1,0 +1,6 @@
+{
+  "sources": [
+    {"type": "minecraft:single", "resource": "ccgraphics:gui/border_graphics"},
+    {"type": "minecraft:single", "resource": "ccgraphics:gui/sidebar_graphics"}
+  ]
+}

@@ -1,0 +1,6 @@
+{
+    "model": {
+        "type": "minecraft:model",
+        "model": "ccgraphics:block/graphics_monitor_item"
+    }
+}

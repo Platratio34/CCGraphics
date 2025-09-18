@@ -1,5 +1,9 @@
 {
     "block.ccgraphics.graphics_monitor": "Graphics Monitor",
     "block.ccgraphics.graphics_computer": "Graphics Computer",
-    "block.ccgraphics.pocket_graphics_computer": "Pocket Graphics Computer"
+    "block.ccgraphics.pocket_graphics_computer": "Pocket Graphics Computer",
+    
+    "item.ccgraphics.graphics_monitor": "Graphics Monitor",
+    "item.ccgraphics.graphics_computer": "Graphics Computer",
+    "item.ccgraphics.pocket_graphics_computer": "Pocket Graphics Computer"
 }
